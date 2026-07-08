@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SDG Strategy Road Map — Sintesa Group</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css" />
+  <style>
+    .r-input { display: none; }
+    .r-input:checked + label { border-color: #0f766e !important; background: #f0fdfa !important; }
+    .r-input:checked + label .r-ring { border-color: #0f766e !important; background: #0f766e !important; }
+    .r-input:checked + label .r-dot  { display: block !important; }
+
+    .c-input { display: none; }
+    .c-input:checked + label { border-color: #0f766e !important; background: #f0fdfa !important; }
+    .c-input:checked + label .c-box  { border-color: #0f766e !important; background: #0f766e !important; }
+    .c-input:checked + label .c-tick { display: flex !important; }
+
+    .step { display: none; }
+    .step.show { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+
+    /* ── action radio pill ── */
+    .act-radio { display: none; }
+    .act-radio:checked + label {
+      border-color: #b45309 !important;
+      background: #fefce8 !important;
+    }
+    .act-radio:checked + label .act-ring {
+      border-color: #b45309 !important;
+      background: #b45309 !important;
+    }
+    .act-radio:checked + label .act-dot { display: block !important; }
+
+    .rt th {
+      font-size: 13px; font-weight: 700; color: #475569;
+      text-transform: uppercase; letter-spacing: .04em;
+      padding: 12px 14px; background: #f0fdfa;
+      border-bottom: 2px solid #ccfbf1; white-space: nowrap;
+    }
+    .rt td {
+      padding: 14px 14px; font-size: 15px; color: #1f2937;
+      border-bottom: 1px solid #e2e8f0; vertical-align: top; line-height: 1.7;
+    }
+    .rt tr:last-child td { border-bottom: none; }
+    .rt tr:hover td { background: #f0fdfa; }
+
+    body {
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 16px;
+      line-height: 1.65;
+    }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 9999px; }
+  </style>
+</head>
+<body class="bg-white min-h-screen text-gray-900 antialiased">
+
+<!-- BRANDING BAR -->
+<div class="bg-white border-b border-gray-300 px-6 py-3 flex items-center gap-3 sticky top-0 z-20">
+  <div class="w-2 h-2 rounded-full bg-teal-700 flex-shrink-0"></div>
+  <span class="text-lg font-semibold text-gray-900">Sintesa SDG Portal</span>
+  <span class="text-gray-600">·</span>
+  <span class="text-base text-gray-500">SDG Strategy Road Map — Operation Impact</span>
+</div>
+
+<!-- STEP TABS -->
+<div class="bg-white border-b border-gray-600 px-6 pt-4 pb-0 sticky top-[60px] z-10">
+  <div class="flex gap-0">
+    <button id="tab1" onclick="goStep(1)"
+      class="px-4 pb-3 text-base font-semibold text-teal-700 border-b-2 border-teal-700 bg-transparent border-l-0 border-t-0 border-r-0 cursor-pointer">
+      <i class="ti ti-apps mr-1"></i>1 · Pilih tujuan SDG
+    </button>
+    <button id="tab2" onclick="goStep(2)"
+      class="px-4 pb-3 text-base font-semibold text-gray-600 border-b-2 border-transparent bg-transparent border-l-0 border-t-0 border-r-0 cursor-pointer">
+      <i class="ti ti-layout-columns mr-1"></i>2 · Pilih kategori & kolom
+    </button>
+    <button id="tab3" onclick="goStep(3)"
+      class="px-4 pb-3 text-base font-semibold text-gray-600 border-b-2 border-transparent bg-transparent border-l-0 border-t-0 border-r-0 cursor-pointer">
+      <i class="ti ti-list-check mr-1"></i>3 · Pilih aksi spesifik
+    </button>
+    <button id="tab4" onclick="goStep(4)"
+      class="px-4 pb-3 text-base font-semibold text-gray-600 border-b-2 border-transparent bg-transparent border-l-0 border-t-0 border-r-0 cursor-pointer">
+      <i class="ti ti-table mr-1"></i>4 · Hasil & Form Isian
+    </button>
+  </div>
+</div>
+
+<div style="display:flex;flex-direction:column;min-height:calc(100vh - 118px);">
+
+  <!-- ════ STEP 1: PILIH SDG ════ -->
+  <div id="step1" class="step show">
+    <div class="flex-1 overflow-y-auto p-6">
+      <div class="flex items-center gap-4 bg-white rounded-xl shadow-sm ring-1 ring-gray-100 shadow-sm hover:shadow-md transition-all duration-200 px-5 py-4 mb-6">
+          <i class="ti ti-target text-teal-700 text-base"></i>
+        <span class="text-base text-gray-900">Pilih <strong>satu</strong> tujuan SDG yang akan difokuskan</span>
+        <div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+          <div id="s1-prog" class="h-full bg-teal-700 rounded-full transition-all" style="width:0%"></div>
+        </div>
+        <span id="s1-prog-txt" class="text-base font-semibold text-teal-700 whitespace-nowrap">0 / 8</span>
+      </div>
+      <div class="grid grid-cols-2 gap-3" id="sdg-grid"></div>
+    </div>
+    <div class="bg-white border-t border-gray-300 px-6 py-3 flex items-center justify-between shrink-0">
+      <p id="f1-info" class="text-base text-gray-600">Belum ada pilihan</p>
+      <button id="f1-next" onclick="goStep(2)" disabled
+        class="px-4 py-2 text-base font-semibold text-white bg-teal-700 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-teal-800 transition-colors">
+        Lanjut ke Kategori →
+      </button>
+    </div>
+  </div>
+
+  <!-- ════ STEP 2: PILIH KATEGORI & KOLOM ════ -->
+  <div id="step2" class="step">
+    <div class="flex-1 overflow-y-auto p-6">
+
+      <!-- SDG chip -->
+      <div class="flex items-center gap-3 bg-white rounded-xl shadow-sm ring-1 ring-gray-100 px-4 py-3 mb-5">
+        <div id="s2-badge" class="w-11 h-11 rounded-lg flex items-center justify-center text-xl font-bold flex-shrink-0"></div>
+        <div class="flex-1 min-w-0">
+          <p id="s2-title" class="text-base font-semibold text-gray-900"></p>
+          <p id="s2-sub" class="text-[14px] text-gray-600 mt-0.5"></p>
+        </div>
+        <button onclick="goStep(1)" class="text-base text-teal-700 hover:underline">Ganti SDG</button>
+      </div>
+
+      <!-- Kategori (radio) -->
+      <p class="text-base font-semibold text-gray-800 mb-1">Pilih <span class="text-teal-700">satu</span> kategori strategi:</p>
+      <p class="text-[14px] text-gray-600 mb-3">Policies · Operation · Investment · Partnership</p>
+      <div class="grid grid-cols-2 gap-3 mb-6" id="cat-grid"></div>
+
+      <!-- Kolom tampilan (checkbox) -->
+      <div class="flex items-center justify-between mb-1">
+        <p class="text-base font-semibold text-gray-800">Pilih kolom yang ingin ditampilkan:</p>
+        <button id="btn-all" onclick="toggleAllViews()"
+          class="text-[14px] text-teal-700 hover:underline bg-transparent border-none cursor-pointer">Pilih semua</button>
+      </div>
+      <p class="text-[14px] text-gray-600 mb-3">Centang satu atau lebih kolom informasi</p>
+      <div class="flex flex-col gap-2" id="view-grid"></div>
+
+    </div>
+    <div class="bg-white border-t border-gray-300 px-6 py-3 flex items-center justify-between shrink-0">
+      <p id="f2-info" class="text-base text-gray-600">—</p>
+      <div class="flex gap-2">
+        <button onclick="goStep(1)" class="px-3 py-2 text-base text-gray-500 border border-gray-300 rounded-lg hover:bg-gray-50">← Kembali</button>
+        <button id="f2-next" onclick="goStep(3)" disabled
+          class="px-4 py-2 text-base font-semibold text-white bg-teal-700 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-teal-800 transition-colors">
+          Pilih Aksi Spesifik →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ STEP 3: PILIH AKSI SPESIFIK ════ -->
+  <div id="step3" class="step">
+    <div class="flex-1 overflow-y-auto p-6">
+
+      <!-- breadcrumb chip -->
+      <div class="flex items-center gap-2 bg-white rounded-xl shadow-sm ring-1 ring-gray-100 px-4 py-3 mb-5 flex-wrap">
+        <div id="s3-sdg-badge" class="w-9 h-9 rounded-lg flex items-center justify-center text-lg font-bold flex-shrink-0"></div>
+        <span id="s3-sdg-title" class="text-base font-semibold text-gray-800"></span>
+        <i class="ti ti-chevron-right text-gray-500 text-base"></i>
+        <span id="s3-cat-chip" class="text-[14px] font-semibold px-2 py-0.5 rounded-full"></span>
+        <button onclick="goStep(2)" class="ml-auto text-base text-teal-700 hover:underline">Ubah kategori</button>
+      </div>
+
+      <p class="text-base font-semibold text-gray-800 mb-1">
+        Pilih <span class="text-amber-600">satu</span> Key Business Action yang akan difokuskan:
+      </p>
+      <p class="text-[14px] text-gray-600 mb-4">Setelah memilih aksi, detail dan indikator akan muncul secara otomatis untuk dikonfirmasi.</p>
+
+      <!-- Action list -->
+      <div class="flex flex-col gap-3" id="action-list"></div>
+
+      <!-- Detail & Indicator panel (muncul setelah pilih action) -->
+      <div id="detail-panel" class="hidden mt-5">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="h-px flex-1 bg-gray-200"></div>
+          <span class="text-[14px] text-gray-600 font-medium px-2">Detail & Indikator untuk aksi terpilih</span>
+          <div class="h-px flex-1 bg-gray-200"></div>
+        </div>
+
+        <!-- Detail -->
+        <div class="bg-white border border-green-100 rounded-xl p-4 mb-3">
+          <div class="flex items-center gap-2 mb-2">
+            <div class="w-6 h-6 rounded-md bg-green-50 flex items-center justify-center flex-shrink-0">
+              <i class="ti ti-list-details text-green-600 text-base"></i>
+            </div>
+            <p class="text-[14px] font-semibold text-green-700 uppercase tracking-wider">Detail Action & Solution</p>
+          </div>
+          <p id="detail-text" class="text-base text-gray-800 leading-relaxed pl-8"></p>
+        </div>
+
+        <!-- Indicator -->
+        <div class="bg-white border border-red-100 rounded-xl p-4">
+          <div class="flex items-center gap-2 mb-2">
+            <div class="w-6 h-6 rounded-md bg-red-50 flex items-center justify-center flex-shrink-0">
+              <i class="ti ti-chart-bar text-red-500 text-base"></i>
+            </div>
+            <p class="text-[14px] font-semibold text-red-600 uppercase tracking-wider">Action Indicator</p>
+          </div>
+          <p id="indicator-text" class="text-base text-green-800 font-medium leading-relaxed pl-8"></p>
+        </div>
+      </div>
+
+    </div>
+    <div class="bg-white border-t border-gray-300 px-6 py-3 flex items-center justify-between shrink-0">
+      <p id="f3-info" class="text-base text-gray-600">Pilih satu aksi untuk melihat detail</p>
+      <div class="flex gap-2">
+        <button onclick="goStep(2)" class="px-3 py-2 text-base text-gray-500 border border-gray-300 rounded-lg hover:bg-gray-50">← Kembali</button>
+        <button id="f3-next" onclick="goStep(4)" disabled
+          class="px-4 py-2 text-base font-semibold text-white bg-teal-700 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-teal-800 transition-colors">
+          Lihat Hasil & Form →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ STEP 4: HASIL & FORM ISIAN ════ -->
+  <div id="step4" class="step">
+    <div class="flex-1 overflow-y-auto p-6">
+
+      <!-- Header bar -->
+      <div class="flex items-center justify-between mb-5">
+        <div class="flex items-center gap-2 flex-wrap">
+          <div id="s4-badge" class="w-11 h-11 rounded-lg flex items-center justify-center text-xl font-bold flex-shrink-0"></div>
+          <div>
+            <p id="s4-title" class="text-base font-semibold text-gray-900"></p>
+            <p id="s4-sub"   class="text-[14px] text-gray-600"></p>
+          </div>
+          <span id="s4-cat-pill" class="text-[14px] font-semibold px-2 py-0.5 rounded-full"></span>
+          <span id="s4-action-pill" class="text-[14px] font-medium px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 max-w-xs truncate"></span>
+        </div>
+        <div class="flex gap-2 flex-shrink-0">
+          <button onclick="goStep(3)" class="flex items-center gap-1 text-base text-gray-500 border border-gray-300 rounded-lg px-3 py-1.5 hover:bg-gray-50">
+            <i class="ti ti-edit text-base"></i> Ubah
+          </button>
+          <button onclick="window.print()" class="flex items-center gap-1 text-base text-gray-500 border border-gray-300 rounded-lg px-3 py-1.5 hover:bg-gray-50">
+            <i class="ti ti-printer text-base"></i> Cetak
+          </button>
+        </div>
+      </div>
+
+      <!-- ══ HASIL TABLE (semua kolom yang dipilih) ══ -->
+      <div class="bg-white rounded-xl shadow-sm ring-1 ring-gray-100 overflow-hidden mb-6">
+
+        <!-- Summary rows untuk Deliverable & Area Strategy -->
+        <div id="s4-summary-rows"></div>
+
+        <!-- Table untuk Action / Detail / Indicator -->
+        <div id="s4-table-wrap">
+          <div class="overflow-x-auto">
+            <table class="rt w-full border-collapse" id="result-table">
+              <thead id="result-thead"></thead>
+              <tbody id="result-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="result-empty" class="hidden text-center py-10">
+          <i class="ti ti-table-off text-3xl text-gray-500 block mb-2"></i>
+          <p class="text-base text-gray-600">Pilih kolom di langkah 2 untuk menampilkan data.</p>
+        </div>
+      </div>
+
+      <!-- ══ FORM ISIAN ══ -->
+      <div class="bg-white rounded-xl shadow-sm ring-1 ring-gray-100 overflow-hidden">
+        <div class="flex items-center gap-3 px-5 py-3.5 border-b border-gray-100 bg-gradient-to-r from-teal-50 to-white">
+          <div class="w-8 h-8 rounded-lg bg-teal-100 flex items-center justify-center flex-shrink-0">
+            <i class="ti ti-forms text-teal-700 text-lg"></i>
+          </div>
+          <div>
+            <p class="text-base font-semibold text-gray-900">Form Isian Road Map</p>
+            <p class="text-[14px] text-gray-600">Isi kolom di bawah untuk melengkapi rencana aksi Anda</p>
+          </div>
+          <button onclick="clearForm()"
+            class="ml-auto text-[14px] text-gray-600 hover:text-red-500 border border-gray-300 rounded-lg px-2.5 py-1 transition-colors">
+            <i class="ti ti-trash text-base"></i> Reset
+          </button>
+        </div>
+        <div class="p-5 space-y-4" id="form-body"></div>
+        <div class="px-5 pb-5 flex justify-end gap-2">
+          <button onclick="downloadForm()"
+            class="flex items-center gap-1.5 px-4 py-2 text-base font-semibold text-teal-800 border border-teal-300 bg-teal-50 rounded-lg hover:bg-teal-100 transition-colors">
+            <i class="ti ti-download text-base"></i> Unduh isian
+          </button>
+          <button onclick="submitForm()"
+            class="flex items-center gap-1.5 px-4 py-2 text-base font-semibold text-white bg-teal-700 rounded-lg hover:bg-teal-800 transition-colors">
+            <i class="ti ti-check text-base"></i> Simpan & konfirmasi
+          </button>
+        </div>
+      </div>
+
+    </div>
+    <div class="bg-white border-t border-gray-300 px-6 py-3 flex items-center justify-between shrink-0">
+      <p id="f4-info" class="text-base text-gray-600"></p>
+      <button onclick="goStep(1)" class="px-3 py-2 text-base text-gray-500 border border-gray-300 rounded-lg hover:bg-gray-50">← Mulai dari awal</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div id="toast"
+  class="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-gray-900 text-white text-base font-medium px-4 py-3 rounded-xl shadow-lg opacity-0 pointer-events-none transition-all duration-300"
+  style="transform:translateY(8px);">
+  <i id="toast-icon" class="ti ti-check-circle text-green-400 text-lg"></i>
+  <span id="toast-msg"></span>
+</div>
+
+<!-- ═══════════ DATA ═══════════ -->
+<script>
+const SDGs = [
+  {
+    id: 3, label: 'SDG 3', name: 'Good Health & Well-Being',
+    title: 'Kesehatan dan kesejahteraan lingkungan kerja',
+    bg: '#e8f5e9', color: '#2e7d32',
+    categories: {
+      Policies: {
+        deliverable: 'Dokumen kebijakan K3 tersertifikasi; SOP cuti & benefit terdokumentasi',
+        areaStrategy: 'Human Capital & Wellbeing',
+        actions: [
+          { action: 'Kebijakan K3 (Kesehatan & Keselamatan Kerja)', detail: 'Penerapan SOP K3 di seluruh unit operasional sesuai standar ISO 45001', indicator: 'Jumlah insiden kerja ≤ target tahunan; audit K3 lulus ≥ 90%' },
+          { action: 'Cuti hamil/melahirkan/paternity leave', detail: 'Jaminan cuti sesuai regulasi dan kebijakan internal Sintesa Group', indicator: 'Tingkat penggunaan cuti ≥ 80%; 0 kasus pelanggaran hak cuti' },
+          { action: 'Tunjangan perawatan kesehatan karyawan', detail: 'Penyediaan BPJS Kesehatan + asuransi swasta tambahan', indicator: 'Coverage 100% karyawan tetap; klaim proses ≤ 5 hari kerja' },
+        ],
+      },
+      Operation: {
+        deliverable: 'Laporan implementasi K3 kuartalan; rekap utilisasi fasilitas kesehatan',
+        areaStrategy: 'Operasional & Compliance',
+        actions: [
+          { action: 'Implementasi pedoman K3 dan sarana prasarana', detail: 'Pengadaan APD, pemasangan rambu, dan pelatihan wajib K3', indicator: 'Rata-rata jam pelatihan K3/karyawan ≥ 8 jam/tahun' },
+          { action: 'Jaminan hak cuti dan asuransi kesehatan (BPJS + swasta)', detail: 'Administrasi cuti terintegrasi dengan sistem HR; verifikasi klaim otomatis', indicator: 'Kepuasan karyawan terhadap benefit ≥ 80% (survei tahunan)' },
+        ],
+      },
+      Investment: {
+        deliverable: 'Anggaran investasi kesehatan tahunan; laporan utilisasi klinik & MCU',
+        areaStrategy: 'Infrastruktur & Asset',
+        actions: [
+          { action: 'Fasilitas kesehatan on-location (klinik)', detail: 'Klinik bertenaga dokter/bidan di lokasi hotel/properti besar', indicator: 'Klinik beroperasi ≥ 5 hari/minggu; utilisasi ≥ 50 kunjungan/bulan' },
+          { action: 'Peralatan P3K dan obat-obatan standar', detail: 'Standarisasi kotak P3K sesuai Permenaker; pengecekan berkala tiap 3 bulan', indicator: '100% lokasi memiliki P3K lengkap & berstandar' },
+          { action: 'Pemeriksaan kesehatan tahunan karyawan', detail: 'MCU tahunan wajib bagi semua karyawan tetap minimal usia 30 tahun', indicator: 'Partisipasi MCU ≥ 90% per tahun' },
+        ],
+      },
+      Partnership: {
+        deliverable: 'Laporan kegiatan kemitraan; dokumentasi foto & peserta; MoU aktif',
+        areaStrategy: 'Community & External Relations',
+        actions: [
+          { action: 'Donor darah bersama PMI', detail: 'Event donor darah 2x setahun berkoordinasi dengan PMI Daerah', indicator: 'Kantong darah terkumpul ≥ 200/event; partisipasi karyawan ≥ 30%' },
+          { action: 'Simulasi kebakaran/fire drill bersama Dinas Pemadam', detail: 'Fire drill minimal 1x/tahun di setiap properti', indicator: 'Seluruh properti melaksanakan fire drill; waktu evakuasi ≤ 5 menit' },
+          { action: 'Sosialisasi hak reproduksi & pengelolaan limbah medis', detail: 'Kerjasama dengan Dinas Kesehatan & NGO kesehatan lingkungan', indicator: 'Peserta sosialisasi ≥ 100 orang/event; pre-post test naik ≥ 20%' },
+        ],
+      },
+    },
+  },
+  {
+    id: 5, label: 'SDG 5', name: 'Gender Equality',
+    title: 'Kesetaraan gender di lingkungan kerja',
+    bg: '#fce4ec', color: '#c62828',
+    categories: {
+      Policies: {
+        deliverable: 'Dokumen GEP tersertifikasi; SK Komite Etik; log revisi kebijakan HR',
+        areaStrategy: 'Governance & Policy',
+        actions: [
+          { action: 'Gender Equality Policy (GEP) sesuai Sintesa Group', detail: 'Penyusunan dan pengesahan GEP oleh Direksi; sosialisasi ke seluruh unit', indicator: 'GEP tersedia dan disosialisasikan 100% BU; review setiap 2 tahun' },
+          { action: 'Pembentukan Komite Etik GEP', detail: 'Komite lintas fungsi bertugas menangani pelanggaran GEP', indicator: 'Komite terbentuk; laporan kasus ditindaklanjuti ≤ 14 hari kerja' },
+          { action: 'Pemutakhiran kebijakan HR selaras GEP', detail: 'Audit & revisi seluruh kebijakan HR agar tidak diskriminatif gender', indicator: '100% kebijakan HR telah diaudit gender-lens dalam 1 tahun' },
+        ],
+      },
+      Operation: {
+        deliverable: 'Laporan pay equity audit; rekapitulasi utilisasi ruang laktasi & flexible work',
+        areaStrategy: 'Human Capital & Wellbeing',
+        actions: [
+          { action: 'Upah dan benefit setara lelaki & perempuan', detail: 'Audit pay equity tahunan; koreksi gap upah ≥ 5% dalam 1 tahun', indicator: 'Gender pay gap < 5%; tidak ada kasus diskriminasi benefit' },
+          { action: 'Ruang laktasi & paternity leave', detail: 'Ruang laktasi memenuhi standar Permenkes; paternity leave 3-5 hari', indicator: '100% lokasi ≥ 50 karyawan wanita memiliki ruang laktasi' },
+          { action: 'Flexible working hour', detail: 'Opsi WFH/fleksibel untuk ibu menyusui & orang tua baru', indicator: 'Tingkat retensi karyawan pasca cuti melahirkan ≥ 85%' },
+        ],
+      },
+      Investment: {
+        deliverable: 'Laporan GGAT tahunan; sertifikat & absensi training gender',
+        areaStrategy: 'Capacity Building & Development',
+        actions: [
+          { action: 'Fasilitas penitipan anak', detail: 'Kerjasama daycare terdekat atau subsidi biaya penitipan', indicator: 'Program tersedia di ≥ 3 lokasi; utilisasi ≥ 20 karyawan/bulan' },
+          { action: 'Gender assessment GGAT', detail: 'Assessment menggunakan Gender Gap Analysis Tool (GGAT) tahunan', indicator: 'GGAT score meningkat ≥ 10 poin YoY' },
+          { action: 'Training isu gender', detail: 'Pelatihan gender sensitif wajib bagi seluruh manajer & supervisor', indicator: 'Partisipasi training ≥ 90% level manajer; post-test skor ≥ 80' },
+        ],
+      },
+      Partnership: {
+        deliverable: 'Laporan sosialisasi gender; daftar hadir & materi',
+        areaStrategy: 'Community & External Relations',
+        actions: [
+          { action: 'Sosialisasi gender equality & hak paternity leave', detail: 'Event internal 2x/tahun; kolaborasi dengan NGO kesetaraan gender', indicator: 'Peserta ≥ 150/event; skor awareness meningkat ≥ 20%' },
+        ],
+      },
+    },
+  },
+  {
+    id: 6, label: 'SDG 6', name: 'Clean Water & Sanitation',
+    title: 'Pengelolaan air berkelanjutan dan bertanggungjawab',
+    bg: '#e3f2fd', color: '#1565c0',
+    categories: {
+      Policies: {
+        deliverable: 'Kebijakan water management; SOP larangan bahan kimia berbahaya',
+        areaStrategy: 'Environment & Sustainability',
+        actions: [
+          { action: 'Kebijakan water management', detail: 'Penetapan target intensitas air (liter/kamar malam); penunjukan water champion', indicator: 'Intensitas air turun ≥ 5%/tahun; laporan konsumsi bulanan' },
+          { action: 'Larangan bahan kimia berbahaya berdampak air tanah', detail: 'Blacklist bahan kimia; substitusi ke produk ramah lingkungan', indicator: '100% produk kimia berbahaya tersubstitusi dalam 2 tahun' },
+        ],
+      },
+      Operation: {
+        deliverable: 'Laporan konsumsi air bulanan; data meter air sub-unit',
+        areaStrategy: 'Operasional & Compliance',
+        actions: [
+          { action: 'Program 5R: Reduce, Reuse, Recover, Recycle, Renew', detail: 'Implementasi di dapur, laundry, dan cooling tower hotel', indicator: 'Konsumsi air per kamar malam turun ≥ 5%/tahun' },
+          { action: 'Daur ulang air dalam operasional', detail: 'Grey water recycling untuk flushing toilet & irigasi taman', indicator: 'Volume air daur ulang ≥ 20% total penggunaan' },
+        ],
+      },
+      Investment: {
+        deliverable: 'Laporan investasi WWTP & penampungan; hasil uji laboratorium air',
+        areaStrategy: 'Infrastruktur & Asset',
+        actions: [
+          { action: 'Sarana water treatment', detail: 'Instalasi filter air & water softener di properti besar', indicator: 'Kualitas air outlet memenuhi standar Permenkes 492/2010' },
+          { action: 'Penampungan air hujan', detail: 'Bak penampung ≥ 5.000 liter di properti dengan lahan ≥ 1 ha', indicator: 'Volume air hujan tertampung ≥ 50 m³/tahun/lokasi' },
+          { action: 'WWTP (Waste Water Treatment Plant)', detail: 'Instalasi WWTP sesuai Permen LHK; monitoring debit efluen', indicator: 'Efluen memenuhi baku mutu air limbah hotel (Kepmen 52/1995)' },
+        ],
+      },
+      Partnership: {
+        deliverable: 'Materi sosialisasi; laporan distribusi & peserta',
+        areaStrategy: 'Community & External Relations',
+        actions: [
+          { action: 'Sosialisasi water management', detail: 'Edukasi hemat air ke tamu, karyawan, dan komunitas sekitar', indicator: 'Peserta ≥ 200/tahun; materi tersebar via sosial media & intranet' },
+        ],
+      },
+    },
+  },
+  {
+    id: 7, label: 'SDG 7', name: 'Affordable & Clean Energy',
+    title: 'Energi bersih dan terjangkau',
+    bg: '#fffde7', color: '#f57f17',
+    categories: {
+      Policies: {
+        deliverable: 'Dokumen energy policy; SK Energy Manager',
+        areaStrategy: 'Environment & Sustainability',
+        actions: [
+          { action: 'Panduan efisiensi energi di perusahaan', detail: 'Target intensitas energi per kamar malam; penunjukan energy manager', indicator: 'Intensitas energi turun ≥ 5%/tahun; laporan bulanan ke manajemen' },
+        ],
+      },
+      Operation: {
+        deliverable: 'Laporan audit energi; dashboard konsumsi energi real-time',
+        areaStrategy: 'Operasional & Compliance',
+        actions: [
+          { action: 'Efisiensi energi operasional', detail: 'Audit energi & implementasi rekomendasi ESCO; jadwal maintenance AC & chiller', indicator: 'Konsumsi listrik/kamar malam turun ≥ 5%/tahun' },
+          { action: 'Penggunaan energi bersih & terbarukan', detail: 'Pembelian REC (Renewable Energy Certificate) atau PLTS atap', indicator: 'Porsi energi terbarukan ≥ 10% dari total konsumsi 2025' },
+        ],
+      },
+      Investment: {
+        deliverable: 'Laporan ROI investasi energi; sertifikat Greenship/EDGE jika ada',
+        areaStrategy: 'Infrastruktur & Asset',
+        actions: [
+          { action: 'Migrasi lampu LED', detail: 'Penggantian 100% lampu non-LED di seluruh properti dalam 2 tahun', indicator: 'Penghematan energi pencahayaan ≥ 40% post-migrasi' },
+          { action: 'Sarana chiller dan thermostat pintar', detail: 'Pemasangan thermostat IoT & upgrade chiller efisiensi tinggi', indicator: 'COP chiller ≥ 5; penghematan AC ≥ 20%' },
+        ],
+      },
+      Partnership: {
+        deliverable: 'Laporan kegiatan sosialisasi; material kampanye energi',
+        areaStrategy: 'Community & External Relations',
+        actions: [
+          { action: 'Sosialisasi isu perubahan iklim', detail: 'Event tahunan bersama IBCSD / IGCN; kampanye hemat energi internal', indicator: 'Peserta ≥ 100/event; konten kampanye tayang ≥ 10x/bulan' },
+        ],
+      },
+    },
+  },
+  {
+    id: 8, label: 'SDG 8', name: 'Decent Work & Economic Growth',
+    title: 'Pertumbuhan ekonomi inklusif dan pekerjaan layak',
+    bg: '#f3e5f5', color: '#6a1b9a',
+    categories: {
+      Policies: {
+        deliverable: 'Kebijakan rekrutmen inklusif tersertifikasi; laporan komposisi karyawan',
+        areaStrategy: 'Governance & Policy',
+        actions: [
+          { action: 'Rekrutmen inklusif untuk kelompok marjinal/rentan', detail: 'Kuota ≥ 1% difabel; rekrutmen aktif dari komunitas sekitar', indicator: 'Persentase karyawan marjinal meningkat YoY; 0 diskriminasi rekrutmen' },
+        ],
+      },
+      Operation: {
+        deliverable: 'Laporan pelatihan; rekap IDP; data promosi internal',
+        areaStrategy: 'Human Capital & Wellbeing',
+        actions: [
+          { action: 'Program Sintesa Academy', detail: 'Platform e-learning + workshop tatap muka; minimal 40 jam/karyawan/tahun', indicator: 'Partisipasi ≥ 85%; rata-rata jam pelatihan ≥ 40 jam/orang/tahun' },
+          { action: 'Promosi dan pengembangan karir karyawan', detail: 'Talent review tahunan; IDP (Individual Development Plan) untuk seluruh karyawan', indicator: 'Internal promotion rate ≥ 30% dari total promosi' },
+          { action: 'Program magang/training', detail: 'Kuota magang minimum 10 orang/semester per BU besar', indicator: 'Jumlah peserta magang ≥ 50/tahun; konversi ke karyawan ≥ 20%' },
+        ],
+      },
+      Investment: {
+        deliverable: 'Laporan realisasi anggaran L&D; perhitungan ROI training',
+        areaStrategy: 'Capacity Building & Development',
+        actions: [
+          { action: 'Anggaran pelatihan kapasitas karyawan', detail: 'Alokasi minimal 2% dari total payroll untuk L&D', indicator: 'Realisasi anggaran L&D ≥ 90%; ROI training terukur' },
+        ],
+      },
+      Partnership: {
+        deliverable: 'Daftar MoU aktif; laporan pengadaan lokal; data peserta magang',
+        areaStrategy: 'Community & External Relations',
+        actions: [
+          { action: 'Kerjasama institusi pendidikan untuk magang', detail: 'MoU dengan ≥ 5 universitas/SMK per tahun', indicator: 'MoU aktif ≥ 5; mahasiswa magang ≥ 50/tahun' },
+          { action: 'Kerjasama UMKM/supplier lokal', detail: 'Preferensi vendor lokal ≥ 30% dari total pengadaan non-strategis', indicator: 'Persentase vendor lokal ≥ 30%; laporan pengadaan per kuartal' },
+        ],
+      },
+    },
+  },
+  {
+    id: 12, label: 'SDG 12', name: 'Responsible Consumption',
+    title: 'Pola produksi dan konsumsi bertanggungjawab',
+    bg: '#fff3e0', color: '#e65100',
+    categories: {
+      Policies: {
+        deliverable: 'Dokumen SOP waste management; laporan B3 manifest tahunan',
+        areaStrategy: 'Environment & Sustainability',
+        actions: [
+          { action: 'Kebijakan pengelolaan sampah domestik & limbah produksi', detail: 'SOP pemilahan sampah 4 kategori; target diversion rate ≥ 50%', indicator: 'Diversion rate dari TPA ≥ 50%; laporan waste bulanan' },
+          { action: 'Kebijakan limbah B3 dan material daur ulang', detail: 'Manifest B3 sesuai Permen LHK; kerjasama transporter berizin', indicator: '100% limbah B3 tertangani melalui transporter resmi' },
+          { action: 'Kebijakan 3R (Reduce, Reuse, Recycle)', detail: 'Target pengurangan limbah 5% YoY; laporan 3R per BU', indicator: 'Volume sampah ke TPA turun ≥ 5%/tahun' },
+        ],
+      },
+      Operation: {
+        deliverable: 'Dashboard waste operasional; laporan food waste per property; manifest B3',
+        areaStrategy: 'Operasional & Compliance',
+        actions: [
+          { action: 'Pemilahan sampah & program less plastic', detail: 'Eliminasi plastik sekali pakai di F&B; penyediaan tempat sampah terpilah', indicator: 'Penggunaan plastik sekali pakai turun ≥ 50% dalam 2 tahun' },
+          { action: 'On-site composting sampah organik', detail: 'Unit komposter di properti ≥ 100 kamar; pupuk hasil dipakai taman', indicator: 'Volume sampah organik ter-composting ≥ 30% total organik' },
+          { action: 'Food waste & food donation', detail: 'Sistem monitoring food waste per meal period; donasi surplus makanan', indicator: 'Food waste per cover turun ≥ 10% YoY; donasi ≥ 100 porsi/bulan' },
+          { action: 'Pengelolaan limbah B3', detail: 'Inventarisasi, labeling, dan penyimpanan sesuai MSDS', indicator: '0 insiden tumpahan B3; audit penyimpanan B3 2x/tahun' },
+        ],
+      },
+      Investment: {
+        deliverable: 'Laporan investasi fasilitas waste; kontrak vendor daur ulang aktif',
+        areaStrategy: 'Infrastruktur & Asset',
+        actions: [
+          { action: 'Kerjasama waste management & daur ulang', detail: 'Kontrak dengan vendor daur ulang & bank sampah komunitas', indicator: 'Volume material terdaur ulang ≥ 20 ton/tahun' },
+          { action: 'Fasilitas pemilahan sampah', detail: 'Tempat sampah 4 warna di seluruh area publik & back-of-house', indicator: '100% titik pembuangan memiliki fasilitas pilah' },
+          { action: 'Incinerator dan WWTP', detail: 'Incinerator untuk limbah medis/B3; WWTP untuk limbah cair', indicator: 'Kapasitas incinerator ≥ kebutuhan; WWTP memenuhi baku mutu' },
+        ],
+      },
+      Partnership: {
+        deliverable: 'Sertifikat GRASP; laporan sosialisasi; dokumentasi event',
+        areaStrategy: 'Community & External Relations',
+        actions: [
+          { action: 'GRASP Signatories (food waste)', detail: 'Bergabung sebagai signatory GRASP & laporan food waste tahunan', indicator: 'Laporan GRASP submitted tepat waktu; score meningkat YoY' },
+          { action: 'Sosialisasi waste management', detail: 'Edukasi pilah sampah ke karyawan, tamu, dan komunitas', indicator: 'Peserta ≥ 200/tahun; materi tersedia di intranet & media sosial' },
+        ],
+      },
+    },
+  },
+  {
+    id: 13, label: 'SDG 13', name: 'Climate Action',
+    title: 'Langkah dan aksi menangani perubahan iklim',
+    bg: '#e0f2f1', color: '#00695c',
+    categories: {
+      Policies: {
+        deliverable: 'Dokumen roadmap transisi energi; laporan TCFD tahunan',
+        areaStrategy: 'Environment & Sustainability',
+        actions: [
+          { action: 'Kebijakan teknologi & inovasi energi bersih', detail: 'Roadmap transisi energi 2025-2030; alokasi capex tahunan', indicator: 'Porsi capex energi bersih ≥ 15% dari total capex infrastruktur' },
+          { action: 'Rencana mitigasi & risk management perubahan iklim', detail: 'Climate risk assessment TCFD; integrasi ke rencana bisnis', indicator: 'Laporan TCFD published tahunan; risiko iklim terdokumentasi' },
+        ],
+      },
+      Operation: {
+        deliverable: 'GHG inventory tahunan; laporan emisi Scope 1-3; dashboard energi',
+        areaStrategy: 'Operasional & Compliance',
+        actions: [
+          { action: 'Energi bersih & terbarukan', detail: 'Penggunaan PLTS on-site & pembelian REC untuk operasional', indicator: 'Porsi energi terbarukan ≥ 15% total konsumsi 2025' },
+          { action: 'Pengurangan emisi GRK (teknologi CCS)', detail: 'Inventarisasi emisi Scope 1, 2, 3; target net-zero 2040', indicator: 'Emisi Scope 1+2 turun ≥ 10%/tahun; laporan GHG inventory' },
+          { action: 'Penghematan energi: LED, timer, thermostat', detail: 'BMS (Building Management System) terintegrasi di properti besar', indicator: 'Konsumsi energi/kamar turun ≥ 8%/tahun post-BMS' },
+        ],
+      },
+      Investment: {
+        deliverable: 'Laporan investasi green tech; data kapasitas PLTS terpasang',
+        areaStrategy: 'Infrastruktur & Asset',
+        actions: [
+          { action: 'Infrastruktur lampu LED', detail: 'Migrasi 100% ke LED dalam 2 tahun; standar minimal 80 lm/W', indicator: 'Penghematan ≥ 40% konsumsi pencahayaan' },
+          { action: 'Teknologi CCS (Carbon Capture & Storage)', detail: 'Studi kelayakan CCS untuk unit bisnis dengan emisi tinggi', indicator: 'Feasibility study selesai 2025; pilot implementasi 2026' },
+          { action: 'Solar panel & kendaraan rendah emisi (EV/Hybrid)', detail: 'PLTS atap ≥ 50 kWp/properti; fleet kendaraan hybrid bertahap', indicator: '≥ 3 properti ber-PLTS 2025; ≥ 20% fleet EV/Hybrid 2027' },
+        ],
+      },
+      Partnership: {
+        deliverable: 'Laporan keanggotaan & aktivitas Net Zero Hub, IGCN, IBCSD',
+        areaStrategy: 'Community & External Relations',
+        actions: [
+          { action: 'Net Zero Hub (KADIN)', detail: 'Bergabung dan aktif berpartisipasi dalam Net Zero Hub KADIN Indonesia', indicator: 'Hadir ≥ 4 pertemuan/tahun; kontribusi laporan bersama' },
+          { action: 'Climate Change Accelerator (IGCN)', detail: 'Program akselerasi iklim dengan IGCN; mentoring & benchmarking', indicator: 'Target IGCN terpenuhi; laporan progress 2x/tahun' },
+          { action: 'Edukasi isu perubahan iklim (IBCSD)', detail: 'Webinar & workshop bersama IBCSD untuk karyawan & komunitas', indicator: 'Peserta ≥ 200/tahun; rating kepuasan ≥ 4/5' },
+        ],
+      },
+    },
+  },
+  {
+    id: 16, label: 'SDG 16', name: 'Peace, Justice & Strong Institutions',
+    title: 'Masyarakat damai, inklusif, dan institusi akuntabel',
+    bg: '#e8eaf6', color: '#283593',
+    categories: {
+      Policies: {
+        deliverable: 'Dokumen CoC, CHRP, Gender Policy tersertifikasi; laporan whistleblowing',
+        areaStrategy: 'Governance & Policy',
+        actions: [
+          { action: 'Implementasi CHRP, Code of Conduct Policy, Gender Policy', detail: 'Sosialisasi wajib; penandatanganan komitmen seluruh karyawan', indicator: '100% karyawan menerima & menandatangani CoC; audit tahunan' },
+          { action: 'Mekanisme pengaduan karyawan yang aman dan terverifikasi', detail: 'Whistleblowing system anonim; SLA penyelesaian ≤ 30 hari', indicator: '100% laporan ditindaklanjuti; 0 kasus pembalasan pelapor' },
+        ],
+      },
+    },
+  },
+];
+
+const CAT_META = {
+  Policies:    { icon: 'ti-file-text',  desc: 'Kebijakan & regulasi internal',    color: '#7c3aed', bg: '#f5f3ff' },
+  Operation:   { icon: 'ti-settings',   desc: 'Implementasi operasional harian',   color: '#1d4ed8', bg: '#f0fdfa' },
+  Investment:  { icon: 'ti-coin',       desc: 'Alokasi anggaran & infrastruktur',  color: '#b45309', bg: '#fef9c3' },
+  Partnership: { icon: 'ti-handshake',  desc: 'Kerjasama eksternal & sosialisasi', color: '#065f46', bg: '#d1fae5' },
+};
+
+// Semua 5 kolom — semuanya tampil di tabel (tidak ada yang dikeluarkan)
+const VIEW_COLS = [
+  { id: 'deliverable',  label: 'Deliverable of Commitment', icon: 'ti-file-check',                   color: '#7c3aed', bg: '#f5f3ff', desc: 'Output/dokumen komitmen dari setiap tujuan SDG' },
+  { id: 'areaStrategy', label: 'Area Strategy',             icon: 'ti-layout-distribute-horizontal', color: '#0369a1', bg: '#e0f2fe', desc: 'Area strategis yang menjadi fokus tindakan' },
+  { id: 'action',       label: 'Key Business Action',       icon: 'ti-rocket',                       color: '#b45309', bg: '#fef9c3', desc: 'Aksi bisnis utama yang perlu dijalankan' },
+  { id: 'detail',       label: 'Detail Action & Solution',  icon: 'ti-list-details',                 color: '#065f46', bg: '#d1fae5', desc: 'Uraian rinci tindakan dan solusi implementasi' },
+  { id: 'indicator',    label: 'Action Indicator',          icon: 'ti-chart-bar',                    color: '#be123c', bg: '#ffe4e6', desc: 'KPI & indikator keberhasilan terukur' },
+];
+
+const FORM_SECTIONS = [
+  {
+    id: 'f_deliverable', col: 'deliverable', label: 'Deliverable of Commitment',
+    icon: 'ti-file-check', color: '#7c3aed', bg: '#f5f3ff',
+    fields: [
+      { id: 'deliverable_doc',    label: 'Dokumen/Output yang Dihasilkan', type: 'textarea', placeholder: 'Contoh: Laporan K3 kuartalan, sertifikat ISO 45001…' },
+      { id: 'deliverable_target', label: 'Target Penyelesaian',            type: 'text',     placeholder: 'Contoh: Q2 2025, Desember 2025…' },
+      { id: 'deliverable_pic',    label: 'PIC (Penanggung Jawab)',         type: 'text',     placeholder: 'Nama / Jabatan / Divisi…' },
+    ],
+  },
+  {
+    id: 'f_areastrategy', col: 'areaStrategy', label: 'Area Strategy',
+    icon: 'ti-layout-distribute-horizontal', color: '#0369a1', bg: '#e0f2fe',
+    fields: [
+      { id: 'area_focus',    label: 'Fokus Area Strategis', type: 'text',     placeholder: 'Contoh: Human Capital & Wellbeing…' },
+      { id: 'area_unit',     label: 'Unit Bisnis Terkait',  type: 'text',     placeholder: 'Nama unit bisnis / departemen…' },
+      { id: 'area_priority', label: 'Prioritas (1–5)',      type: 'text',     placeholder: 'Angka 1 = tertinggi…' },
+    ],
+  },
+  {
+    id: 'f_action', col: 'action', label: 'Key Business Action',
+    icon: 'ti-rocket', color: '#b45309', bg: '#fef9c3',
+    fields: [
+      { id: 'action_desc',     label: 'Deskripsi Aksi Utama',  type: 'textarea', placeholder: 'Jelaskan aksi bisnis utama yang akan dijalankan…' },
+      { id: 'action_timeline', label: 'Jadwal Pelaksanaan',    type: 'text',     placeholder: 'Contoh: Jan–Mar 2025, Semester 1…' },
+      { id: 'action_budget',   label: 'Estimasi Anggaran (Rp)',type: 'text',     placeholder: 'Contoh: 50.000.000' },
+    ],
+  },
+  {
+    id: 'f_detail', col: 'detail', label: 'Detail Action & Solution',
+    icon: 'ti-list-details', color: '#065f46', bg: '#d1fae5',
+    fields: [
+      { id: 'detail_step',      label: 'Langkah-langkah Implementasi',    type: 'textarea', placeholder: '1. …\n2. …\n3. …' },
+      { id: 'detail_challenge', label: 'Tantangan yang Diantisipasi',     type: 'textarea', placeholder: 'Tuliskan potensi hambatan dan solusinya…' },
+      { id: 'detail_resources', label: 'Sumber Daya Dibutuhkan',          type: 'text',     placeholder: 'SDM, teknologi, anggaran, mitra…' },
+    ],
+  },
+  {
+    id: 'f_indicator', col: 'indicator', label: 'Action Indicator',
+    icon: 'ti-chart-bar', color: '#be123c', bg: '#ffe4e6',
+    fields: [
+      { id: 'ind_kpi',        label: 'KPI Utama',               type: 'textarea', placeholder: 'Contoh: Tingkat partisipasi ≥ 85%, insiden ≤ 0…' },
+      { id: 'ind_baseline',   label: 'Baseline Saat Ini',       type: 'text',     placeholder: 'Angka/kondisi awal sebelum program berjalan…' },
+      { id: 'ind_target_val', label: 'Target Nilai / Persentase',type: 'text',    placeholder: 'Contoh: 90%, 200 orang, Rp 100 juta…' },
+      { id: 'ind_frequency',  label: 'Frekuensi Monitoring',    type: 'text',     placeholder: 'Bulanan / Kuartalan / Tahunan…' },
+    ],
+  },
+];
+
+/* ════ STATE ════ */
+let selectedSdg   = null;
+let selectedCat   = null;
+let selectedAction= null; // { idx, action, detail, indicator }
+let selectedViews = new Set(['action', 'detail', 'indicator']);
+let currentStep   = 1;
+const formValues  = {};
+
+/* ════ STEP 1 – SDG GRID ════ */
+function buildSdgGrid() {
+  document.getElementById('sdg-grid').innerHTML = SDGs.map(s => `
+    <div>
+      <input class="r-input" type="radio" name="sdg" id="sdg-${s.id}" value="${s.id}" onchange="selectSdg(${s.id})" />
+      <label for="sdg-${s.id}" class="block border border-gray-300 bg-white rounded-xl p-3.5 cursor-pointer transition-all hover:border-gray-400">
+        <div class="flex items-start gap-2.5 mb-2.5">
+          <div class="r-ring w-6 h-6 rounded-full border-[2.5px] border-gray-400 flex items-center justify-center flex-shrink-0 mt-0.5 transition-all">
+            <div class="r-dot w-3 h-3 rounded-full bg-white hidden"></div>
+          </div>
+          <div class="w-10 h-10 rounded-lg flex items-center justify-center text-xl font-bold flex-shrink-0"
+               style="background:${s.bg};color:${s.color};">${s.id}</div>
+          <div class="flex-1 min-w-0">
+            <p class="text-base font-semibold text-gray-900 leading-snug">${s.title}</p>
+            <p class="text-[14px] text-gray-600 mt-0.5">${s.label} — ${s.name}</p>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-1 pl-[26px]">
+          ${Object.keys(s.categories).map(c => {
+            const m = CAT_META[c];
+            return `<span class="text-[13px] px-2 py-0.5 rounded-full font-medium" style="background:${m.bg};color:${m.color};">${c}</span>`;
+          }).join('')}
+        </div>
+      </label>
+    </div>`).join('');
+}
+
+function selectSdg(id) {
+  selectedSdg = SDGs.find(s => s.id === id);
+  selectedCat = null;
+  selectedAction = null;
+  document.getElementById('s1-prog').style.width = '100%';
+  document.getElementById('s1-prog-txt').textContent = '1 / 8';
+  document.getElementById('f1-info').innerHTML = `Dipilih: <strong>${selectedSdg.label}</strong> — ${selectedSdg.title}`;
+  document.getElementById('f1-next').disabled = false;
+}
+
+/* ════ STEP 2 – KATEGORI & KOLOM ════ */
+function buildCatGrid() {
+  if (!selectedSdg) return;
+  const b = document.getElementById('s2-badge');
+  b.textContent = selectedSdg.id;
+  b.style.background = selectedSdg.bg;
+  b.style.color = selectedSdg.color;
+  document.getElementById('s2-title').textContent = selectedSdg.title;
+  document.getElementById('s2-sub').textContent   = `${selectedSdg.label} — ${selectedSdg.name}`;
+
+  document.getElementById('cat-grid').innerHTML = Object.keys(selectedSdg.categories).map(cat => {
+    const m = CAT_META[cat];
+    const count = selectedSdg.categories[cat].actions.length;
+    return `
+    <div>
+      <input class="r-input" type="radio" name="cat" id="cat-${cat}" value="${cat}"
+             ${selectedCat === cat ? 'checked' : ''} onchange="selectCat('${cat}')" />
+      <label for="cat-${cat}" class="block border border-gray-300 bg-white rounded-xl p-4 cursor-pointer transition-all hover:border-gray-400 h-full">
+        <div class="flex items-center gap-2.5 mb-2">
+          <div class="r-ring w-6 h-6 rounded-full border-[2.5px] border-gray-400 flex items-center justify-center flex-shrink-0 transition-all">
+            <div class="r-dot w-3 h-3 rounded-full bg-white hidden"></div>
+          </div>
+          <div class="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style="background:${m.bg};">
+            <i class="ti ${m.icon} text-lg" style="color:${m.color};"></i>
+          </div>
+          <p class="text-base font-semibold text-gray-900">${cat}</p>
+        </div>
+        <p class="text-[14px] text-gray-600 pl-[26px] mb-2">${m.desc}</p>
+        <div class="pl-[26px]">
+          <span class="text-[14px] font-semibold px-2 py-0.5 rounded-full" style="background:${m.bg};color:${m.color};">${count} aksi tersedia</span>
+        </div>
+      </label>
+    </div>`;
+  }).join('');
+}
+
+function selectCat(cat) {
+  selectedCat = cat;
+  selectedAction = null;
+  updateF2();
+  document.getElementById('f2-next').disabled = selectedViews.size === 0;
+}
+
+function buildViewGrid() {
+  document.getElementById('view-grid').innerHTML = VIEW_COLS.map(v => {
+    const checked = selectedViews.has(v.id);
+    return `
+    <div>
+      <input class="c-input" type="checkbox" id="view-${v.id}" value="${v.id}"
+             ${checked ? 'checked' : ''} onchange="toggleView('${v.id}')" />
+      <label for="view-${v.id}" class="flex items-center gap-3 border border-gray-300 bg-white rounded-xl px-4 py-3 cursor-pointer transition-all hover:border-gray-400">
+        <div class="c-box w-6 h-6 rounded border-[2.5px] border-gray-400 flex items-center justify-center flex-shrink-0 transition-all">
+          <i class="c-tick ti ti-check text-white text-[13px] ${checked ? 'flex' : 'hidden'}"></i>
+        </div>
+        <div class="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style="background:${v.bg};">
+          <i class="ti ${v.icon} text-lg" style="color:${v.color};"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-base font-semibold text-gray-900">${v.label}</p>
+          <p class="text-[14px] text-gray-600 mt-0.5">${v.desc}</p>
+        </div>
+        <span class="text-[14px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap"
+              style="background:${checked ? v.bg : '#f3f4f6'};color:${checked ? v.color : '#9ca3af'};">
+          ${checked ? '✓ Aktif' : 'Nonaktif'}
+        </span>
+      </label>
+    </div>`;
+  }).join('');
+}
+
+function toggleView(id) {
+  selectedViews.has(id) ? selectedViews.delete(id) : selectedViews.add(id);
+  buildViewGrid();
+  updateF2();
+  document.getElementById('f2-next').disabled = !selectedCat || selectedViews.size === 0;
+}
+
+function toggleAllViews() {
+  const btn = document.getElementById('btn-all');
+  if (selectedViews.size === VIEW_COLS.length) {
+    selectedViews.clear(); btn.textContent = 'Pilih semua';
+  } else {
+    VIEW_COLS.forEach(v => selectedViews.add(v.id)); btn.textContent = 'Hapus semua';
+  }
+  buildViewGrid(); updateF2();
+  document.getElementById('f2-next').disabled = !selectedCat || selectedViews.size === 0;
+}
+
+function updateF2() {
+  document.getElementById('f2-info').innerHTML = !selectedCat
+    ? `<strong>${selectedSdg.label}</strong> — pilih kategori strategi`
+    : `<strong>${selectedSdg.label} · ${selectedCat}</strong> — ${selectedViews.size} kolom dipilih`;
+}
+
+/* ════ STEP 3 – PILIH AKSI SPESIFIK ════ */
+function buildActionList() {
+  if (!selectedSdg || !selectedCat) return;
+  const catData = selectedSdg.categories[selectedCat];
+  const catMeta = CAT_META[selectedCat];
+
+  // breadcrumb
+  const sb = document.getElementById('s3-sdg-badge');
+  sb.textContent = selectedSdg.id;
+  sb.style.background = selectedSdg.bg;
+  sb.style.color = selectedSdg.color;
+  document.getElementById('s3-sdg-title').textContent = selectedSdg.title;
+  const cp = document.getElementById('s3-cat-chip');
+  cp.textContent = selectedCat;
+  cp.style.background = catMeta.bg;
+  cp.style.color = catMeta.color;
+
+  // action list
+  document.getElementById('action-list').innerHTML = catData.actions.map((a, i) => `
+    <div>
+      <input class="act-radio" type="radio" name="act" id="act-${i}" value="${i}" onchange="selectAction(${i})" />
+      <label for="act-${i}"
+        class="flex items-start gap-3 border border-gray-300 bg-white rounded-xl p-4 cursor-pointer transition-all hover:border-amber-300">
+        <div class="act-ring w-6 h-6 rounded-full border-[2.5px] border-gray-400 flex items-center justify-center flex-shrink-0 mt-0.5 transition-all">
+          <div class="act-dot w-3 h-3 rounded-full bg-white hidden"></div>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-base font-semibold text-gray-900 leading-snug mb-1">${a.action}</p>
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-[14px] px-2 py-0.5 rounded-full font-medium" style="background:${catMeta.bg};color:${catMeta.color};">${selectedCat}</span>
+            <span class="text-[14px] text-gray-600">Aksi ${i + 1} dari ${catData.actions.length}</span>
+          </div>
+        </div>
+        <i class="ti ti-chevron-right text-gray-500 text-lg mt-0.5 flex-shrink-0"></i>
+      </label>
+    </div>`).join('');
+
+  // hide detail panel
+  document.getElementById('detail-panel').classList.add('hidden');
+  document.getElementById('f3-info').textContent = 'Pilih satu aksi untuk melihat detail';
+  document.getElementById('f3-next').disabled = true;
+}
+
+function selectAction(i) {
+  const catData = selectedSdg.categories[selectedCat];
+  const row = catData.actions[i];
+  selectedAction = { idx: i, ...row };
+
+  // show detail panel
+  document.getElementById('detail-panel').classList.remove('hidden');
+  document.getElementById('detail-text').textContent    = row.detail;
+  document.getElementById('indicator-text').textContent = row.indicator;
+
+  document.getElementById('f3-info').innerHTML =
+    `Aksi dipilih: <strong>${row.action}</strong>`;
+  document.getElementById('f3-next').disabled = false;
+}
+
+/* ════ STEP 4 – HASIL & FORM ════ */
+function buildStep4() {
+  if (!selectedSdg || !selectedCat || !selectedAction) return;
+
+  const catData = selectedSdg.categories[selectedCat];
+  const catMeta = CAT_META[selectedCat];
+  const row     = selectedAction;
+
+  // header
+  const b4 = document.getElementById('s4-badge');
+  b4.textContent = selectedSdg.id;
+  b4.style.background = selectedSdg.bg;
+  b4.style.color = selectedSdg.color;
+  document.getElementById('s4-title').textContent = selectedSdg.title;
+  document.getElementById('s4-sub').textContent   = `${selectedSdg.label} — ${selectedSdg.name}`;
+  const cp4 = document.getElementById('s4-cat-pill');
+  cp4.textContent = selectedCat;
+  cp4.style.background = catMeta.bg;
+  cp4.style.color = catMeta.color;
+  document.getElementById('s4-action-pill').textContent = row.action;
+
+  // ── Bangun tabel: semua kolom yang dipilih, dalam SATU tabel ──
+  const activeViews = VIEW_COLS.filter(v => selectedViews.has(v.id));
+  const tableWrap   = document.getElementById('s4-table-wrap');
+  const empty       = document.getElementById('result-empty');
+  const summRows    = document.getElementById('s4-summary-rows');
+  summRows.innerHTML = '';
+
+  if (activeViews.length === 0) {
+    tableWrap.classList.add('hidden');
+    empty.classList.remove('hidden');
+  } else {
+    tableWrap.classList.remove('hidden');
+    empty.classList.add('hidden');
+
+    // Pisahkan kolom: deliverable & areaStrategy tampil sebagai summary banner di atas tabel
+    // Kolom action/detail/indicator tampil di tabel baris
+    const summCols  = activeViews.filter(v => v.id === 'deliverable' || v.id === 'areaStrategy');
+    const tableCols = activeViews.filter(v => v.id !== 'deliverable' && v.id !== 'areaStrategy');
+
+    // Summary banners
+    if (summCols.length > 0) {
+      summRows.innerHTML = `
+        <div class="grid grid-cols-${summCols.length === 1 ? '1' : '2'} gap-0 border-b border-gray-100">
+          ${summCols.map(v => {
+            const val = v.id === 'deliverable' ? catData.deliverable : catData.areaStrategy;
+            return `
+            <div class="flex items-start gap-3 px-5 py-4 ${summCols.length > 1 ? 'border-r border-gray-100 last:border-r-0' : ''}">
+              <div class="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style="background:${v.bg};">
+                <i class="ti ${v.icon} text-base" style="color:${v.color};"></i>
+              </div>
+              <div>
+                <p class="text-[14px] font-semibold uppercase tracking-wider mb-1" style="color:${v.color};">${v.label}</p>
+                <p class="text-base text-gray-800 leading-relaxed">${val}</p>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>`;
+    }
+
+    // Main tabel — hanya aksi yang dipilih (bukan seluruh kategori)
+    if (tableCols.length > 0) {
+      document.getElementById('result-thead').innerHTML = `
+        <tr>
+          ${tableCols.map(v => `
+            <th>
+              <div class="flex items-center gap-1.5">
+                <i class="ti ${v.icon}" style="color:${v.color};"></i>${v.label}
+              </div>
+            </th>`).join('')}
+        </tr>`;
+
+      document.getElementById('result-tbody').innerHTML = `
+        <tr>
+          ${tableCols.map(v => {
+            if (v.id === 'action')    return `<td><p class="font-semibold text-gray-900" style="font-size:11px;margin:0;">${row.action}</p></td>`;
+            if (v.id === 'detail')    return `<td><p style="font-size:11px;color:#374151;margin:0;">${row.detail}</p></td>`;
+            if (v.id === 'indicator') return `<td><p style="font-size:11px;color:#065f46;font-weight:500;margin:0;">${row.indicator}</p></td>`;
+            return '<td>—</td>';
+          }).join('')}
+        </tr>`;
+    } else {
+      // semua kolom sudah di summary, tabel kosong — sembunyikan
+      document.getElementById('result-table').style.display = 'none';
+    }
+  }
+
+  document.getElementById('f4-info').innerHTML =
+    `<strong>${selectedSdg.label} · ${selectedCat}</strong> — "${row.action}" · ${activeViews.length} kolom tampil`;
+
+  buildFormSections();
+}
+
+/* ════ FORM ISIAN ════ */
+/* ════ FORM ISIAN ════ */
+function buildFormSections() {
+  document.getElementById('form-body').innerHTML = `
+    <div class="border border-gray-300 rounded-xl overflow-hidden">
+
+      <div class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 bg-teal-50">
+        <div class="w-7 h-7 rounded-lg bg-teal-600 flex items-center justify-center">
+          <i class="ti ti-check text-white text-lg"></i>
+        </div>
+
+        <p class="text-base font-semibold text-teal-700">
+          Respon Tindakan
+        </p>
+      </div>
+
+      <div class="p-5 space-y-5 bg-white">
+
+        <!-- Radio -->
+        <div>
+          <label class="block text-[15px] font-semibold text-gray-700 mb-2">
+            Apakah tindakan ini dilakukan?
+          </label>
+
+          <div class="flex gap-8">
+
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input
+                type="radio"
+                name="questionnaire_response"
+                value="iya"
+                ${formValues.questionnaire_response === 'iya' ? 'checked' : ''}
+                onchange="formValues.questionnaire_response='iya'"
+              >
+              <span>Iya</span>
+            </label>
+
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input
+                type="radio"
+                name="questionnaire_response"
+                value="tidak"
+                ${formValues.questionnaire_response === 'tidak' ? 'checked' : ''}
+                onchange="formValues.questionnaire_response='tidak'"
+              >
+              <span>Tidak</span>
+            </label>
+
+          </div>
+        </div>
+
+        <!-- Keterangan -->
+        <div>
+          <label class="block text-[15px] font-semibold text-gray-700 mb-2">
+            Keterangan
+          </label>
+
+          <textarea
+            id="questionnaire_note"
+            rows="5"
+            placeholder="Tuliskan keterangan apabila diperlukan..."
+            oninput="formValues.questionnaire_note=this.value"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-base resize-none focus:outline-none focus:border-teal-600"
+          >${formValues.questionnaire_note || ''}</textarea>
+        </div>
+
+      </div>
+
+    </div>
+  `;
+}
+
+function clearForm() {
+    formValues.questionnaire_response = '';
+    formValues.questionnaire_note = '';
+
+    buildFormSections();
+
+    showToast('Form berhasil direset', 'ti-trash');
+}
+
+function submitForm() {
+  const filled = Object.values(formValues).filter(v => v && v.trim() !== '').length;
+  showToast(`Tersimpan — ${filled} kolom terisi`, 'ti-check-circle');
+}
+
+function downloadForm() {
+  lines.push(`Respon Tindakan : ${formValues.questionnaire_response || '-'}`);
+  lines.push(`Keterangan      : ${formValues.questionnaire_note || '-'}`);
+}
+
+/* ════ NAVIGATION ════ */
+function goStep(n) {
+  if (n === 2 && !selectedSdg) return;
+  if (n === 3 && (!selectedCat || selectedViews.size === 0)) return;
+  if (n === 4 && !selectedAction) return;
+  currentStep = n;
+
+  const steps = ['step1','step2','step3','step4'];
+  steps.forEach((id, i) => {
+    document.getElementById(id).classList.toggle('show', i + 1 === n);
+  });
+
+  const tabs = ['tab1','tab2','tab3','tab4'];
+  tabs.forEach((id, i) => {
+    const active = i + 1 === n;
+    const el = document.getElementById(id);
+    el.style.color = active ? '#0f766e' : '#9ca3af';
+    el.style.borderBottomColor = active ? '#0f766e' : 'transparent';
+    el.style.fontWeight = active ? '600' : '500';
+  });
+
+  if (n === 2) { buildCatGrid(); buildViewGrid(); updateF2(); }
+  if (n === 3) { buildActionList(); }
+  if (n === 4) { buildStep4(); }
+}
+
+/* ════ TOAST ════ */
+function showToast(msg, icon = 'ti-check-circle') {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  document.getElementById('toast-icon').className  = `ti ${icon} text-green-400 text-lg`;
+  t.style.opacity = '1'; t.style.transform = 'translateY(0)';
+  setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(8px)'; }, 2800);
+}
+
+/* ── Init ── */
+buildSdgGrid();
+</script>
+</body>
+</html>

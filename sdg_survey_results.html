@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Hasil Survei SDG — Sintesa Group</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css"/>
+<style>
+  @font-face {
+    font-family: 'Fraunces';
+    src: local('Georgia');
+  }
+  :root{
+    --paper:#0e1310;
+    --panel:#161d19;
+    --panel-hi:#1d2520;
+    --line:#2a342e;
+    --ink:#eef0ea;
+    --ink-dim:#9aa69d;
+    --lime:#c5f23d;
+    --lime-dim:#7d9c2e;
+    --coral:#ff6b57;
+    --coral-dim:#a8453a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:var(--paper);color:var(--ink);min-height:100vh;}
+  body{
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    background-image:
+      radial-gradient(circle at 15% 0%, rgba(197,242,61,0.05), transparent 45%),
+      radial-gradient(circle at 90% 80%, rgba(255,107,87,0.05), transparent 45%);
+  }
+
+  .wrap{max-width:980px;margin:0 auto;padding:48px 24px 80px;}
+
+  /* ── Masthead ── */
+  .masthead{
+    display:flex; align-items:flex-end; justify-content:space-between;
+    border-bottom:1px solid var(--line); padding-bottom:20px; margin-bottom:8px;
+    flex-wrap:wrap; gap:16px;
+  }
+  .masthead-eyebrow{
+    font-size:10.5px; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--lime); font-weight:600; margin-bottom:10px;
+  }
+  .masthead h1{
+    font-family:Georgia,'Times New Roman',serif;
+    font-size:clamp(28px,4vw,42px); font-weight:400; line-height:1.05;
+    letter-spacing:-.01em; color:var(--ink);
+  }
+  .masthead-meta{
+    text-align:right; font-size:11px; color:var(--ink-dim); line-height:1.7;
+  }
+  .masthead-meta b{ color:var(--ink); font-weight:600; }
+
+  .lede{
+    font-size:13px; color:var(--ink-dim); max-width:560px; line-height:1.65;
+    margin:18px 0 40px;
+  }
+  .lede strong{ color:var(--ink); }
+
+  /* ── Grid 3x3 ── */
+  .board{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:1px;
+    background:var(--line); border:1px solid var(--line); margin-bottom:14px;
+  }
+  .cell{
+    background:var(--panel); padding:22px 18px; cursor:pointer; position:relative;
+    transition:background .18s ease;
+    min-height:148px; display:flex; flex-direction:column; justify-content:space-between;
+  }
+  .cell:hover{ background:var(--panel-hi); }
+  .cell.active{ background:var(--panel-hi); }
+  .cell.active::after{
+    content:''; position:absolute; inset:0; border:1px solid var(--lime); pointer-events:none;
+  }
+  .cell-top{ display:flex; align-items:flex-start; justify-content:space-between; }
+  .cell-num{
+    font-family:Georgia,serif; font-size:30px; font-weight:400; line-height:1;
+  }
+  .cell-img{
+    width:48px; height:48px; object-fit:contain; display:block;
+    border-radius:4px; flex-shrink:0;
+  }
+  .cell-resp{ text-align:right; }
+  .cell-resp-n{ font-size:10px; color:var(--ink-dim); letter-spacing:.04em; }
+  .cell-name{
+    font-size:11.5px; font-weight:600; line-height:1.4; margin-top:14px;
+    color:var(--ink);
+  }
+  .cell-sub{ font-size:10px; color:var(--ink-dim); margin-top:3px; letter-spacing:.02em; }
+
+  .cell-bar{ height:10px; background:var(--line); margin-top:14px; overflow:hidden; display:flex; }
+  .cell-bar-yes{ background:var(--lime); height:100%; }
+  .cell-bar-no{ background:var(--coral); height:100%; }
+
+  /* responsive */
+  @media (max-width:680px){
+    .board{ grid-template-columns:repeat(2,1fr); }
+  }
+  @media (max-width:460px){
+    .board{ grid-template-columns:1fr; }
+  }
+
+  .board-foot{
+    display:flex; align-items:center; gap:18px; font-size:10.5px; color:var(--ink-dim);
+    margin-bottom:56px; flex-wrap:wrap;
+  }
+  .legend-dot{ width:7px; height:7px; border-radius:1px; display:inline-block; margin-right:6px; }
+
+  /* ── Detail panel ── */
+  .detail{
+    display:none; border:1px solid var(--line); background:var(--panel);
+    padding:0; margin-bottom:24px;
+  }
+  .detail.show{ display:block; }
+
+  .detail-head{
+    display:flex; align-items:flex-start; justify-content:space-between; gap:20px;
+    padding:28px 30px 24px; border-bottom:1px solid var(--line);
+  }
+  .detail-num{ font-family:Georgia,serif; font-size:48px; line-height:1; font-weight:400; }
+  .detail-img{
+    width:72px; height:72px; object-fit:contain; display:block;
+    border-radius:6px; flex-shrink:0;
+  }
+  .detail-title{ flex:1; }
+  .detail-eyebrow{ font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-dim); margin-bottom:8px; }
+  .detail-name{ font-family:Georgia,serif; font-size:22px; line-height:1.25; color:var(--ink); }
+  .detail-close{
+    background:none; border:1px solid var(--line); color:var(--ink-dim);
+    width:30px; height:30px; border-radius:50%; cursor:pointer; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; font-size:14px;
+    transition:all .15s;
+  }
+  .detail-close:hover{ border-color:var(--ink-dim); color:var(--ink); }
+
+  .detail-body{ padding:30px; }
+
+  .q-block{
+    border-bottom:1px solid var(--line); padding:22px 0;
+  }
+  .q-block:first-child{ padding-top:0; }
+  .q-block:last-child{ border-bottom:none; padding-bottom:0; }
+
+  .q-text{
+    font-size:13.5px; color:var(--ink); line-height:1.5; margin-bottom:16px;
+    max-width:620px;
+  }
+  .q-num{ color:var(--lime); font-weight:600; margin-right:8px; font-family:Georgia,serif; }
+
+  .q-result{ display:flex; align-items:stretch; gap:18px; flex-wrap:wrap; }
+
+  .q-bar-area{ flex:1; min-width:220px; }
+  .q-bar-track{
+    height:34px; width:100%; display:flex; overflow:hidden; border:1px solid var(--line);
+    background:#0a0e0c;
+  }
+  .q-seg{ height:100%; display:flex; align-items:center; transition:width .6s cubic-bezier(.16,1,.3,1); }
+  .q-seg-yes{ background:var(--lime); justify-content:flex-start; padding-left:10px; }
+  .q-seg-no{ background:var(--coral); justify-content:flex-end; padding-right:10px; }
+  .q-seg span{ font-size:11px; font-weight:700; color:#0e1310; white-space:nowrap; }
+
+  .q-legend{ display:flex; gap:16px; margin-top:8px; }
+  .q-legend-item{ font-size:10.5px; color:var(--ink-dim); display:flex; align-items:center; gap:6px; }
+  .q-legend-dot{ width:8px; height:8px; border-radius:50%; }
+
+  .q-n{
+    flex-shrink:0; text-align:right; min-width:96px;
+    border-left:1px solid var(--line); padding-left:18px;
+  }
+  .q-n-val{ font-family:Georgia,serif; font-size:20px; color:var(--ink); }
+  .q-n-label{ font-size:9.5px; color:var(--ink-dim); letter-spacing:.04em; text-transform:uppercase; margin-top:2px; }
+
+  /* ── footer note ── */
+  .footnote{
+    font-size:10.5px; color:var(--ink-dim); border-top:1px solid var(--line);
+    padding-top:18px; line-height:1.7; max-width:640px;
+  }
+  .footnote b{ color:var(--ink); }
+
+  ::-webkit-scrollbar{ width:6px; }
+  ::-webkit-scrollbar-thumb{ background:var(--line); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- ── Masthead ── -->
+  <div class="masthead">
+    <div>
+      <p class="masthead-eyebrow">Hasil Google Form · Survei Internal</p>
+      <h1>Persepsi Karyawan terhadap<br>Komitmen SDG Sintesa Group</h1>
+    </div>
+    <div class="masthead-meta">
+      <div><b>312</b> responden</div>
+      <div>Periode: 1–28 Jun 2026</div>
+      <div>Format jawaban: Ya / Tidak</div>
+    </div>
+  </div>
+
+  <p class="lede">
+    Survei dummy berisi pertanyaan ya/tidak seputar 9 tujuan SDG yang menjadi fokus perusahaan.
+    Klik salah satu kotak SDG di bawah untuk melihat pertanyaan dan distribusi jawaban responden.
+  </p>
+
+  <!-- ── 3x3 grid ── -->
+  <div class="board" id="board"></div>
+
+  <div class="board-foot">
+    <span><span class="legend-dot" style="background:var(--lime);"></span>Ya</span>
+    <span><span class="legend-dot" style="background:var(--coral);"></span>Tidak</span>
+    <span style="margin-left:auto;">Klik kotak untuk membuka detail pertanyaan ↓</span>
+  </div>
+
+  <!-- ── Detail panel ── -->
+  <div class="detail" id="detail">
+    <div class="detail-head">
+      <img class="detail-img" id="d-img" src="" alt="" onerror="this.style.display='none'; document.getElementById('d-num').style.display='block';"/>
+      <div class="detail-num" id="d-num" style="display:none;"></div>
+      <div class="detail-title">
+        <p class="detail-eyebrow" id="d-eyebrow"></p>
+        <p class="detail-name" id="d-name"></p>
+      </div>
+      <button class="detail-close" onclick="closeDetail()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="detail-body" id="d-body"></div>
+  </div>
+
+  <p class="footnote">
+    <b>Catatan:</b> Data pada halaman ini adalah dummy untuk keperluan mockup tampilan.
+    Pertanyaan dan persentase belum mencerminkan hasil survei sesungguhnya.
+    Setiap pertanyaan dijawab dengan dua opsi tetap — <b>Ya</b> atau <b>Tidak</b> — tanpa skala tambahan.
+  </p>
+
+</div>
+
+<script>
+/* ════ DATA DUMMY ════ */
+const SDGS = [
+  {
+    id:3, code:'03', img:'img/Sustainable_Development_Goal_3.png', name:'Kehidupan Sehat & Sejahtera', n:34,
+    questions:[
+      { q:'Apakah Anda merasa fasilitas kesehatan di tempat kerja sudah memadai?', yes:78, no:22, total:312 },
+      { q:'Apakah perusahaan memberikan informasi K3 secara rutin?', yes:85, no:15, total:308 },
+      { q:'Apakah Anda pernah menggunakan layanan klinik perusahaan?', yes:41, no:59, total:301 },
+    ],
+  },
+  {
+    id:5, code:'05', img:'img/Sustainable_Development_Goal_5.png', name:'Kesetaraan Gender', n:34,
+    questions:[
+      { q:'Apakah Anda merasa diperlakukan setara tanpa memandang gender di tempat kerja?', yes:88, no:12, total:312 },
+      { q:'Apakah Anda mengetahui kebijakan paternity leave perusahaan?', yes:54, no:46, total:305 },
+      { q:'Apakah ruang laktasi di kantor Anda sudah memadai?', yes:67, no:33, total:198 },
+    ],
+  },
+  {
+    id:6, code:'06', img:'img/Sustainable_Development_Goal_6.png', name:'Air Bersih & Sanitasi', n:34,
+    questions:[
+      { q:'Apakah fasilitas air bersih di lokasi kerja Anda mencukupi?', yes:91, no:9, total:312 },
+      { q:'Apakah Anda pernah melihat upaya daur ulang air di properti Anda?', yes:46, no:54, total:296 },
+    ],
+  },
+  {
+    id:7, code:'07', img:'img/Sustainable_Development_Goal_7.png', name:'Energi Bersih & Terjangkau', n:34,
+    questions:[
+      { q:'Apakah Anda mengetahui program efisiensi energi di kantor Anda?', yes:63, no:37, total:309 },
+      { q:'Apakah lampu LED sudah terpasang di area kerja Anda?', yes:81, no:19, total:312 },
+    ],
+  },
+  {
+    id:8, code:'08', img:'img/Sustainable_Development_Goal_8.png', name:'Pekerjaan Layak & Ekonomi', n:34,
+    questions:[
+      { q:'Apakah Anda pernah mengikuti pelatihan Sintesa Academy?', yes:58, no:42, total:312 },
+      { q:'Apakah Anda merasa memiliki peluang yang jelas untuk berkembang karir?', yes:72, no:28, total:310 },
+      { q:'Apakah Anda mengetahui program magang perusahaan?', yes:49, no:51, total:298 },
+    ],
+  },
+  {
+    id:12, code:'12', img:'img/Sustainable_Development_Goal_12.png', name:'Konsumsi & Produksi Bertanggung Jawab', n:34,
+    questions:[
+      { q:'Apakah Anda melakukan pemilahan sampah di tempat kerja?', yes:69, no:31, total:312 },
+      { q:'Apakah Anda mengetahui program food donation di properti Anda?', yes:38, no:62, total:289 },
+    ],
+  },
+  {
+    id:13, code:'13', img:'img/Sustainable_Development_Goal_13.png', name:'Penanganan Perubahan Iklim', n:34,
+    questions:[
+      { q:'Apakah Anda mendukung penggunaan kendaraan rendah emisi di perusahaan?', yes:84, no:16, total:312 },
+      { q:'Apakah Anda mengetahui target net-zero perusahaan?', yes:33, no:67, total:295 },
+    ],
+  },
+  {
+    id:16, code:'16', img:'img/Sustainable_Development_Goal_16.png', name:'Perdamaian & Keadilan', n:34,
+    questions:[
+      { q:'Apakah Anda mengetahui mekanisme pengaduan (whistleblowing) perusahaan?', yes:61, no:39, total:312 },
+      { q:'Apakah Anda merasa aman melaporkan pelanggaran tanpa takut pembalasan?', yes:74, no:26, total:303 },
+    ],
+  },
+  {
+    id:17, code:'17', img:'img/Sustainable_Development_Goal_17.png', name:'Kemitraan untuk Tujuan', n:34,
+    questions:[
+      { q:'Apakah Anda mengetahui kemitraan perusahaan dengan organisasi eksternal (KADIN, IGCN, dll)?', yes:29, no:71, total:300 },
+      { q:'Apakah Anda merasa kemitraan ini bermanfaat bagi karyawan?', yes:65, no:35, total:241 },
+    ],
+  },
+];
+
+let activeId = null;
+
+/* ════ Build 3x3 board ════ */
+function buildBoard(){
+  document.getElementById('board').innerHTML = SDGS.map(s => {
+    const avg = avgYes(s.questions);
+    return `
+    <div class="cell" id="cell-${s.id}" onclick="toggleDetail(${s.id})">
+      <div class="cell-top">
+        <img class="cell-img" src="${s.img}" alt="SDG ${s.code}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"/>
+        <div class="cell-num" style="display:none;">${s.code}</div>
+        <div class="cell-resp">
+          <div class="cell-resp-n">${s.questions.length} pertanyaan</div>
+        </div>
+      </div>
+      <div>
+        <div class="cell-name">${s.name}</div>
+        <div class="cell-sub">Rata-rata "Ya": ${avg}%</div>
+        <div class="cell-bar">
+          <div class="cell-bar-yes" style="width:${avg}%"></div>
+          <div class="cell-bar-no" style="width:${100-avg}%"></div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function avgYes(qs){
+  const total = qs.reduce((a,q)=>a+q.yes,0);
+  return Math.round(total / qs.length);
+}
+
+/* ════ Toggle detail panel ════ */
+function toggleDetail(id){
+  if(activeId === id){ closeDetail(); return; }
+  activeId = id;
+  document.querySelectorAll('.cell').forEach(c=>c.classList.remove('active'));
+  document.getElementById('cell-'+id).classList.add('active');
+
+  const s = SDGS.find(x=>x.id===id);
+  const dImg = document.getElementById('d-img');
+  dImg.src = s.img;
+  dImg.alt = 'SDG ' + s.code;
+  dImg.style.display = 'block';
+  document.getElementById('d-num').style.display = 'none';
+  document.getElementById('d-num').textContent = s.code;
+  document.getElementById('d-eyebrow').textContent = `SDG ${s.id} · Hasil Survei`;
+  document.getElementById('d-name').textContent = s.name;
+  document.getElementById('d-body').innerHTML = '';
+
+  document.getElementById('d-body').innerHTML = s.questions.map((q,i)=>`
+    <div class="q-block">
+      <p class="q-text"><span class="q-num">${String(i+1).padStart(2,'0')}</span>${q.q}</p>
+      <div class="q-result">
+        <div class="q-bar-area">
+          <div class="q-bar-track">
+            <div class="q-seg q-seg-yes" style="width:${q.yes}%"><span>${q.yes}%</span></div>
+            <div class="q-seg q-seg-no" style="width:${q.no}%"><span>${q.no}%</span></div>
+          </div>
+          <div class="q-legend">
+            <span class="q-legend-item"><span class="q-legend-dot" style="background:var(--lime);"></span>Ya — ${q.yes}%</span>
+            <span class="q-legend-item"><span class="q-legend-dot" style="background:var(--coral);"></span>Tidak — ${q.no}%</span>
+          </div>
+        </div>
+        <div class="q-n">
+          <div class="q-n-val">${q.total}</div>
+          <div class="q-n-label">Responden</div>
+        </div>
+      </div>
+    </div>`).join('');
+
+  const panel = document.getElementById('detail');
+  panel.classList.add('show');
+  setTimeout(()=>{ panel.scrollIntoView({behavior:'smooth', block:'nearest'}); }, 50);
+}
+
+function closeDetail(){
+  activeId = null;
+  document.querySelectorAll('.cell').forEach(c=>c.classList.remove('active'));
+  document.getElementById('detail').classList.remove('show');
+}
+
+buildBoard();
+</script>
+</body>
+</html>

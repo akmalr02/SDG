@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard ESG — Sintesa Group</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        brand: { DEFAULT: '#1B3A6B', light: '#2752A0', soft: '#EBF0FA' },
+        accent: { DEFAULT: '#2A78D6', light: '#5A9AE8', soft: '#EBF3FD' },
+        teal:   { DEFAULT: '#1BAF7A', soft: '#E6F8F2' },
+        amber:  { DEFAULT: '#EDA100', soft: '#FEF6E0' },
+        violet: { DEFAULT: '#4A3AA7', soft: '#EDEAFC' },
+        rose:   { DEFAULT: '#E87BA4', soft: '#FDF0F5' },
+        green:  { DEFAULT: '#22C55E', soft: '#F0FDF4' },
+        orange: { DEFAULT: '#F97316', soft: '#FFF7ED' },
+        sky:    { DEFAULT: '#0EA5E9', soft: '#F0F9FF' },
+        ink:    { DEFAULT: '#1A1F36', muted: '#6B7280', faint: '#9CA3AF' },
+        surface:{ DEFAULT: '#F8F9FC', card: '#FFFFFF', border: '#E5E8F0' },
+      },
+      fontFamily: { sans: ['Inter','system-ui','sans-serif'] },
+    }
+  }
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body { background: #F8F9FC; color: #1A1F36; font-family: 'Inter', system-ui, sans-serif; }
+select { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+.chart-wrap { position: relative; }
+.bar-fill { transition: width 0.4s cubic-bezier(.4,0,.2,1); }
+.tab-btn { transition: all 0.2s; border-bottom: 3px solid transparent; }
+.tab-btn.active { border-bottom-color: currentColor; }
+.tab-section { display: none; }
+.tab-section.active { display: block; }
+.category-badge { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 999px; letter-spacing: 0.03em; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- Header -->
+<header class="bg-brand text-white px-6 py-4 shadow-md">
+  <div class="max-w-7xl mx-auto flex items-center justify-between gap-4 flex-wrap">
+    <div>
+      <div class="flex items-center gap-2 mb-0.5">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-4 0v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+        <h1 class="text-lg font-semibold tracking-tight">Dashboard ESG</h1>
+      </div>
+      <p class="text-xs text-blue-200 ml-7">Sintesa Group · Data 2023–2025 · GRI Standards</p>
+    </div>
+    <!-- Filters -->
+    <div class="flex gap-3 flex-wrap">
+      <div class="flex flex-col gap-1">
+        <label class="text-xs text-blue-200 font-medium">Perusahaan</label>
+        <select id="sel-pt" onchange="setPT(this.value)"
+          class="bg-white/10 border border-white/20 text-white text-sm rounded-lg px-3 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-white/40 cursor-pointer min-w-[200px]">
+          <option class="text-gray-800" value="all">Semua PT</option>
+          <option class="text-gray-800"value="WS">WS — Widjajatunggal Sejahtera</option>
+          <option class="text-gray-800"value="SDS">SDS — Sintesa Duta Sejahtera</option>
+          <option class="text-gray-800"value="MEPPO">MEPPO — Meppo-Gen</option>
+          <option class="text-gray-800"value="SBG">SBG</option>
+          <option class="text-gray-800"value="SGE">SGE — Sintesa Green Energy</option>
+          <option class="text-gray-800"value="TES">TES — Time Express Sintesa</option>
+          <option class="text-gray-800"value="MPRD">MPRD — Minahasa Permai Resort</option>
+          <option class="text-gray-800"value="MD">MD — Menara Duta</option>
+          <option class="text-gray-800"value="TA">TA — Tira Austenite</option>
+          <option class="text-gray-800"value="TRS">TRS — Tigaraksa Satria</option>
+          <option class="text-gray-800"value="MPH">MPH — Menara Peninsula Hotel</option>
+          <option class="text-gray-800"value="SPP">SPP — Sintesa Peninsula Palembang</option>
+          <option class="text-gray-800"value="SPM">SPM — Sintesa Peninsula Manado</option>
+          <option class="text-gray-800"value="GSME">GSME — Griya Sintesa Muara Enim</option>
+          <option class="text-gray-800"value="PMB">PMB — Puncak Mustika Bersama</option>
+        </select>
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs text-blue-200 font-medium">Tahun</label>
+        <select id="sel-yr" onchange="setYear(this.value==='all'?'all':parseInt(this.value))"
+          class="bg-white/10 border border-white/20 text-white text-sm rounded-lg px-3 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-white/40 cursor-pointer">
+          <option class="text-gray-800" value="all">Semua tahun</option>
+          <option class="text-gray-800" value="2023">2023</option>
+          <option class="text-gray-800" value="2024">2024</option>
+          <option class="text-gray-800" value="2025">2025</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Category Tabs -->
+<div class="bg-white border-b border-surface-border sticky top-0 z-10 shadow-sm">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 overflow-x-auto">
+    <div class="flex gap-0 min-w-max">
+      <button onclick="switchTab('general')"   id="tab-general"   class="tab-btn active text-accent px-4 py-3 text-xs font-semibold whitespace-nowrap">📋 General</button>
+      <button onclick="switchTab('energy')"    id="tab-energy"    class="tab-btn text-amber px-4 py-3 text-xs font-semibold whitespace-nowrap">⚡ Energy</button>
+      <button onclick="switchTab('waste')"     id="tab-waste"     class="tab-btn text-orange px-4 py-3 text-xs font-semibold whitespace-nowrap">♻️ Waste</button>
+      <button onclick="switchTab('water')"     id="tab-water"     class="tab-btn text-sky px-4 py-3 text-xs font-semibold whitespace-nowrap">💧 Water</button>
+      <button onclick="switchTab('diversity')" id="tab-diversity" class="tab-btn text-violet px-4 py-3 text-xs font-semibold whitespace-nowrap">🤝 Diversity & Equal Opp.</button>
+      <button onclick="switchTab('employment')" id="tab-employment" class="tab-btn text-teal px-4 py-3 text-xs font-semibold whitespace-nowrap">👥 Employment</button>
+      <button onclick="switchTab('ohs')"       id="tab-ohs"       class="tab-btn text-rose px-4 py-3 text-xs font-semibold whitespace-nowrap">🦺 OHS</button>
+      <button onclick="switchTab('training')"  id="tab-training"  class="tab-btn text-green px-4 py-3 text-xs font-semibold whitespace-nowrap">📚 Training & Education</button>
+    </div>
+  </div>
+</div>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+  <p id="subtitle" class="text-sm text-ink-muted font-medium">Menampilkan: <span class="text-ink font-semibold">Semua PT</span> · <span class="text-ink font-semibold">Semua tahun</span></p>
+
+  <!-- ==================== GENERAL ==================== -->
+  <div id="sec-general" class="tab-section active space-y-6">
+    <div class="flex items-center gap-2 mb-1">
+      <span class="category-badge bg-accent/10 text-accent">GRI 2-7 · 2-8</span>
+      <span class="text-xs text-ink-muted">Total karyawan & pekerja non-karyawan</span>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div class="bg-white rounded-xl border border-surface-border p-4 shadow-sm">
+        <p class="text-xs text-ink-muted font-medium mb-1">Total Karyawan</p>
+        <p id="k-total" class="text-2xl font-bold text-ink">—</p>
+        <p id="d-total" class="text-xs mt-1 h-4"></p>
+      </div>
+      <div class="bg-white rounded-xl border border-surface-border p-4 shadow-sm">
+        <p class="text-xs text-ink-muted font-medium mb-1">Laki-laki</p>
+        <p id="k-male" class="text-2xl font-bold text-accent">—</p>
+        <p id="d-male" class="text-xs mt-1 h-4"></p>
+      </div>
+      <div class="bg-white rounded-xl border border-surface-border p-4 shadow-sm">
+        <p class="text-xs text-ink-muted font-medium mb-1">Perempuan</p>
+        <p id="k-female" class="text-2xl font-bold text-rose">—</p>
+        <p id="d-female" class="text-xs mt-1 h-4"></p>
+      </div>
+      <div class="bg-white rounded-xl border border-surface-border p-4 shadow-sm">
+        <p class="text-xs text-ink-muted font-medium mb-1">Karyawan Tetap</p>
+        <p id="k-perm" class="text-2xl font-bold text-teal">—</p>
+        <p id="d-perm" class="text-xs mt-1 h-4"></p>
+      </div>
+      <div class="bg-white rounded-xl border border-surface-border p-4 shadow-sm">
+        <p class="text-xs text-ink-muted font-medium mb-1">Karyawan Kontrak</p>
+        <p id="k-contract" class="text-2xl font-bold text-amber">—</p>
+        <p id="d-contract" class="text-xs mt-1 h-4"></p>
+      </div>
+    </div>
+
+    <!-- Row 1: Gender + Status -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-white rounded-xl border border-surface-border p-5 shadow-sm">
+        <h2 class="text-sm font-semibold text-ink mb-1">Gender per tahun</h2>
+        <p class="text-xs text-ink-muted mb-4">GRI 2-7a</p>
+        <div class="chart-wrap" style="height:200px"><canvas id="c-gender"></canvas></div>
+        <div id="l-gender" class="flex flex-wrap gap-3 mt-3"></div>
+      </div>
+      <div class="bg-white rounded-xl border border-surface-border p-5 shadow-sm">
+        <h2 class="text-sm font-semibold text-ink mb-1">Status karyawan per tahun</h2>
+        <p class="text-xs text-ink-muted mb-4">GRI 2-7b</p>
+        <div class="chart-wrap" style="height:200px"><canvas id="c-status"></canvas></div>
+        <div id="l-status" class="flex flex-wrap gap-3 mt-3"></div>
+      </div>
+    </div>
+
+    <!-- Row 2: Trend + Donut -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-white rounded-xl border border-surface-border p-5 shadow-sm">
+        <h2 class="text-sm font-semibold text-ink mb-4">Tren jumlah karyawan</h2>
+        <div class="chart-wrap" style="height:200px"><canvas id="c-trend"></canvas></div>
+        <div id="l-trend" class="flex flex-wrap gap-3 mt-3"></div>
+      </div>
+      <div class="bg-white rounded-xl border border-surface-border p-5 shadow-sm">
+        <h2 class="text-sm font-semibold text-ink mb-4">Komposisi gender (%)</h2>
+        <div class="chart-wrap" style="height:200px"><canvas id="c-donut"></canvas></div>
+        <div id="l-donut" class="flex flex-wrap gap-3 mt-3"></div>
+      </div>
+    </div>
+
+    <!-- PT Comparison -->
+    <div class="bg-white rounded-xl border border-surface-border p-5 shadow-sm">
+      <h2 class="text-sm font-semibold text-ink mb-5">Perbandingan total karyawan antar PT (2025)</h2>
+      <div id="pt-bars" class="space-y-2.5"></div>
+    </div>
+
+    <!-- Row 3: Worker types + Pie -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-white rounded-xl border border-surface-border p-5 shadow-sm">
+        <h2 class="text-sm font-semibold text-ink mb-1">Tipe pekerja non-karyawan</h2>
+        <p class="text-xs text-ink-muted mb-4">GRI 2-8a</p>
+        <div class="chart-wrap" style="height:200px"><canvas id="c-worker"></canvas></div>
+        <div id="l-worker" class="flex flex-wrap gap-3 mt-3"></div>
+      </div>
+      <div class="bg-white rounded-xl border border-surface-border p-5 shadow-sm">
+        <h2 class="text-sm font-semibold text-ink mb-4">Komposisi status karyawan (%)</h2>
+        <div class="chart-wrap" style="height:200px"><canvas id="c-pie"></canvas></div>
+        <div id="l-pie" class="flex flex-wrap gap-3 mt-3"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== ENERGY ==================== -->
+  <div id="sec-energy" class="tab-section space-y-6">
+    <div class="flex items-center gap-2 mb-1">
+      <span class="category-badge bg-amber/10 text-amber">GRI 302-1</span>
+      <span class="text-xs text-ink-muted">Konsumsi energi dalam organisasi</span>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+      <div class="bg-white rounded-xl border border-surface-border p-4 shadow-sm">
+        <p class="text-xs text-ink-muted font-medium mb-1">Total Non-Renewable (GJ)</p>
+        <p id="ke-nonren" class="text-2xl font-bold text-amber">—</p>
+      </div>
+      <div class="bg-white rounded-xl border border-surface-border p-4 shadow-sm">
+        <p class="text-xs text-ink-muted font-medium mb-1">Total Renewable (GJ)</p>
+        <p id="ke-ren" class="text-2xl font-bold text-teal">—</p>
+      </div>
+      <div class="bg-white rounded-xl border border-surface-border p-4 shadow-sm">
+        <p class="text-xs text-ink-muted font-medium mb-1">% Energi Terbarukan</p>
+        <p id="ke-pct" class="text-2xl font-bold text-accent">—</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-white rounded-xl border border-surface-border p-5 shadow-sm">
+        <h2 class="text-sm font-semibold text-ink mb-1">Konsumsi energi per tahun (GJ)</h2>
+        <p class="text-xs text-ink-muted mb-4">GRI 302-1a/b — Non-renewable vs Renewable</p>
+        <div class="chart-wrap" style="height:220px"><canvas id="c-energy-bar"></canvas></div>
+        <div id="l-energy-bar" class="flex flex-wrap gap-3 mt-3"></div>
+      </div>
+      <div class="bg-white rounded-xl border border-surface-border p-5 shadow-sm">
+        <h2 class="text-sm font-semibold text-ink mb-1">Tren konsumsi energi</h2>
+        <p class="text-xs text-ink-muted mb-4">GRI 302-1 — Total energi per tahun</p>
+        <div class="chart-wrap" style="height:220px"><canvas id="c-energy-trend"></canvas></div>
+        <div id="l-energy-trend" class="flex flex-wrap gap-3 mt-3"></div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl border border-surface-border p-5 shadow-sm">
+      <h2 class="text-sm font-semibold text-ink mb-1">Breakdown jenis bahan bakar non-renewable</h2>
+      <p class="text-xs text-ink-muted mb-4">GRI 302-1a — Termasuk jenis bahan bakar yang digunakan</p>
+      <div class="chart-wrap" style="height:220px"><canvas id="c-energy-fuel"></canvas></div>
+      <div id="l-energy-fuel" class="flex flex-wrap gap-3 mt-3"></div>
+    </div>
+  </div>
+
+  <!-- ==================== WASTE ==================== -->
+  <div id="sec-waste" class="tab-section space-y-6">
+    <div class="flex items-center gap-2 mb-1">
+      <span class="category-badge bg-orange/10 text-orange">GRI 306-4 · 306-5</span>
+      <span class="text-xs text-ink-muted">Pengelolaan limbah</span>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div class="bg-white rounded-xl border border-surface-border p-4 shadow-sm">
+        <p class="text-xs text-ink-muted font-medium mb-1">Total Divert (ton)</p>
+        <p id="kw-divert" class="text-2xl font-bold text-teal">—</p>
+      </div>
+      <div class="bg-white rounded-xl border border-surface-border p-4 shadow-sm">
+        <p class="text-xs text-ink-muted font-medium mb-1">Total Disposal (ton)</p>
+        <p id="kw-disposal" class="text-2xl font-bold text-rose">—</p>
+      </div>
+      <div class="bg-white rounded-xl border border-surface-border p-4 shadow-sm">
+        <p class="text-xs text-ink-muted font-medium mb-1">Recycled (ton)</p>
+        <p id="kw-recycled" class="text-2xl font-bold text-accent">—</p>
+      </div>
+      <div class="bg-white rounded-xl border border-surface-border p-4 shadow-sm">
+        <p class="text-xs text-ink-muted font-medium mb-1">Landfill (ton)</p>
+        <p id="kw-landfill" class="text-2xl font-bold text-amber">—</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-white rounded-xl border border-surface-border p-5 shadow-sm">
+        <h2 class="text-sm font-semibold text-ink mb-1">Limbah dialihkan dari pembuangan (ton)</h2>
+        <p class="text-xs text-ink-muted mb-4">GRI 306-4a — Berdasarkan komposisi</p>
+        <div class="chart-wrap" style="height:220px"><canvas id="c-waste-divert"></canvas></div>
+        <div id="l-waste-divert" class="flex flex-wrap gap-3 mt-3"></div>
+      </div>
+      <div class="bg-white rounded-xl border border-surface-border p-5 shadow-sm">
+        <h2 class="text-sm font-semibold text-ink mb-1">Limbah dibuang (ton)</h2>
+        <p class="text-xs text-ink-muted mb-4">GRI 306-5a — Berdasarkan komposisi</p>
+        <div class="chart-wrap" style="height:220px"><canvas id="c-waste-disposal"></canvas></div>
+        <div id="l-waste-disposal" class="flex flex-wrap gap-3 mt-3"></div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl border border-surface-border p-5 shadow-sm">
+      <h2 class="text-sm font-semibold text-ink mb-1">Tren total limbah per tahun (ton)</h2>
+      <p class="text-xs text-ink-muted mb-4">GRI 306-4 & 306-5 — Divert vs Disposal</p>
+      <div class="chart-wrap" style="height:220px"><canvas id="c-waste-trend"></canvas></div>
+      <div id="l-waste-trend" class="flex flex-wrap gap-3 mt-3"></div>
+    </div>
+  </div>
+
+  <!-- ==================== WATER ==================== -->
+  <div id="sec-water" class="tab-section space-y-6">
+    <div class="flex items-center gap-2 mb-1">
+      <span class="category-badge bg-sky/10 text-sky">GRI 303-3 · 303-4</span>
+      <span class="text-xs text-ink-muted">Penarikan & pembuangan air</span>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div class="bg-white rounded-xl border border-surface-border p-4 shadow-sm">
+        <p class="text-xs text-ink-muted font-medium mb-1">Total Withdrawal (ML)</p>
+        <p id="kwa-withdraw" class="text-2xl font-bold text-sky">—</p>
+      </div>
+      <div class="bg-white rounded-xl border border-surface-border p-4 shadow-sm">
+        <p class="text-xs text-ink-muted font-medium mb-1">Total Discharge (ML)</p>
+        <p id="kwa-discharge" class="text-2xl font-bold text-accent">—</p>
+      </div>
+      <div class="bg-white rounded-xl border border-surface-border p-4 shadow-sm">
+        <p class="text-xs text-ink-muted font-medium mb-1">Surface Water (ML)</p>
+        <p id="kwa-surface" class="text-2xl font-bold text-teal">—</p>
+      </div>
+      <div class="bg-white rounded-xl border border-surface-border p-4 shadow-sm">
+        <p class="text-xs text-ink-muted font-medium mb-1">Third-party Water (ML)</p>
+        <p id="kwa-third" class="text-2xl font-bold text-violet">—</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-white rounded-xl border border-surface-border p-5 shadow-sm">
+        <h2 class="text-sm font-semibold text-ink mb-1">Penarikan air per sumber (ML)</h2>
+        <p class="text-xs text-ink-muted mb-4">GRI 303-3a — Surface, Groundwater, Third-party, dll.</p>
+        <div class="chart-wrap" style="height:220px"><canvas id="c-water-withdraw"></canvas></div>
+        <div id="l-water-withdraw" class="flex flex-wrap gap-3 mt-3"></div>
+      </div>
+      <div class="bg-white rounded-xl border border-surface-border p-5 shadow-sm">
+        <h2 class="text-sm font-semibold text-ink mb-1">Pembuangan air per tujuan (ML)</h2>
+        <p class="text-xs text-ink-muted mb-4">GRI 303-4a — Surface, Groundwater, Third-party</p>
+        <div class="chart-wrap" style="height:220px"><canvas id="c-water-discharge"></canvas></div>
+        <div id="l-water-discharge" class="flex flex-wrap gap-3 mt-3"></div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl border border-surface-border p-5 shadow-sm">
+      <h2 class="text-sm font-semibold text-ink mb-1">Tren penggunaan air (ML)</h2>
+      <p class="text-xs text-ink-muted mb-4">GRI 303-3 & 303-4 — Withdrawal vs Discharge per tahun</p>
+      <div class="chart-wrap" style="height:220px"><canvas id="c-water-trend"></canvas></div>
+      <div id="l-water-trend" class="flex flex-wrap gap-3 mt-3"></div>
+    </div>
+  </div>
+
+  <!-- ==================== DIVERSITY ==================== -->
+  <div id="sec-diversity" class="tab-section space-y-6">
+    <div class="flex items-center gap-2 mb-1">
+      <span class="category-badge bg-violet/10 text-violet">GRI 405-1 · 405-2</span>
+      <span class="text-xs text-ink-muted">Keragaman & kesetaraan kesempatan</span>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div class="bg-white rounded-xl border border-surface-border p-4 shadow-sm">
+        <p class="text-xs text-ink-muted font-medium mb-1">Governance — Pria (%)</p>
+        <p id="kd-gov-m" class="text-2xl font-bold text-accent">—</p>
+      </div>
+      <div class="bg-white rounded-xl border border-surface-border p-4 shadow-sm">
+        <p class="text-xs text-ink-muted font-medium mb-1">Governance — Wanita (%)</p>
+        <p id="kd-gov-f" class="text-2xl font-bold text-rose">—</p>
+      </div>
+      <div class="bg-white rounded-xl border border-surface-border p-4 shadow-sm">
+        <p class="text-xs text-ink-muted font-medium mb-1">Rasio Gaji F/M (Senior)</p>
+        <p id="kd-ratio-sr" class="text-2xl font-bold text-teal">—</p>
+      </div>
+      <div class="bg-white rounded-xl border border-surface-border p-4 shadow-sm">
+        <p class="text-xs text-ink-muted font-medium mb-1">Rasio Gaji F/M (Junior)</p>
+        <p id="kd-ratio-jr" class="text-2xl font-bold text-violet">—</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-white rounded-xl border border-surface-border p-5 shadow-sm">
+        <h2 class="text-sm font-semibold text-ink mb-1">Komposisi governance bodies berdasarkan gender</h2>
+        <p class="text-xs text-ink-muted mb-4">GRI 405-1a — Gender di dewan direksi/komisaris</p>
+        <div class="chart-wrap" style="height:220px"><canvas id="c-div-gov-gender"></canvas></div>
+        <div id="l-div-gov-gender" class="flex flex-wrap gap-3 mt-3"></div>
+      </div>
+      <div class="bg-white rounded-xl border border-surface-border p-5 shadow-sm">
+        <h2 class="text-sm font-semibold text-ink mb-1">Distribusi kelompok umur karyawan</h2>
+        <p class="text-xs text-ink-muted mb-4">GRI 405-1b — &lt;30 / 30–50 / &gt;50 tahun</p>
+        <div class="chart-wrap" style="height:220px"><canvas id="c-div-age"></canvas></div>
+        <div id="l-div-age" class="flex flex-wrap gap-3 mt-3"></div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl border border-surface-border p-5 shadow-sm">
+      <h2 class="text-sm font-semibold text-ink mb-1">Rasio gaji perempuan terhadap laki-laki per kategori</h2>
+      <p class="text-xs text-ink-muted mb-4">GRI 405-2a — Berdasarkan kategori karyawan & lokasi operasi signifikan</p>
+      <div class="chart-wrap" style="height:220px"><canvas id="c-div-salary"></canvas></div>
+      <div id="l-div-salary" class="flex flex-wrap gap-3 mt-3"></div>
+    </div>
+  </div>
+
+  <!-- ==================== EMPLOYMENT ==================== -->
+  <div id="sec-employment" class="tab-section space-y-6">
+    <div class="flex items-center gap-2 mb-1">
+      <span class="category-badge bg-teal/10 text-teal">GRI 401-1 · 401-3</span>
+      <span class="text-xs text-ink-muted">Rekrutmen & cuti orang tua</span>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div class="bg-white rounded-xl border border-surface-border p-4 shadow-sm">
+        <p class="text-xs text-ink-muted font-medium mb-1">Karyawan Baru (Pria)</p>
+        <p id="ke2-new-m" class="text-2xl font-bold text-accent">—</p>
+      </div>
+      <div class="bg-white rounded-xl border border-surface-border p-4 shadow-sm">
+        <p class="text-xs text-ink-muted font-medium mb-1">Karyawan Baru (Wanita)</p>
+        <p id="ke2-new-f" class="text-2xl font-bold text-rose">—</p>
+      </div>
+      <div class="bg-white rounded-xl border border-surface-border p-4 shadow-sm">
+        <p class="text-xs text-ink-muted font-medium mb-1">Hak Cuti Orang Tua (Pria)</p>
+        <p id="ke2-par-m" class="text-2xl font-bold text-teal">—</p>
+      </div>
+      <div class="bg-white rounded-xl border border-surface-border p-4 shadow-sm">
+        <p class="text-xs text-ink-muted font-medium mb-1">Hak Cuti Orang Tua (Wanita)</p>
+        <p id="ke2-par-f" class="text-2xl font-bold text-violet">—</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-white rounded-xl border border-surface-border p-5 shadow-sm">
+        <h2 class="text-sm font-semibold text-ink mb-1">Karyawan baru berdasarkan gender & kelompok usia</h2>
+        <p class="text-xs text-ink-muted mb-4">GRI 401-1a — Jumlah & tingkat rekrutmen</p>
+        <div class="chart-wrap" style="height:220px"><canvas id="c-emp-new"></canvas></div>
+        <div id="l-emp-new" class="flex flex-wrap gap-3 mt-3"></div>
+      </div>
+      <div class="bg-white rounded-xl border border-surface-border p-5 shadow-sm">
+        <h2 class="text-sm font-semibold text-ink mb-1">Cuti orang tua — berhak, diambil, dan kembali</h2>
+        <p class="text-xs text-ink-muted mb-4">GRI 401-3a/b/c — Berdasarkan gender</p>
+        <div class="chart-wrap" style="height:220px"><canvas id="c-emp-parental"></canvas></div>
+        <div id="l-emp-parental" class="flex flex-wrap gap-3 mt-3"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== OHS ==================== -->
+  <div id="sec-ohs" class="tab-section space-y-6">
+    <div class="flex items-center gap-2 mb-1">
+      <span class="category-badge bg-rose/10 text-rose">GRI 403-9</span>
+      <span class="text-xs text-ink-muted">Keselamatan & kesehatan kerja</span>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div class="bg-white rounded-xl border border-surface-border p-4 shadow-sm">
+        <p class="text-xs text-ink-muted font-medium mb-1">Kematian akibat kerja</p>
+        <p id="ko-fatality" class="text-2xl font-bold text-rose">—</p>
+      </div>
+      <div class="bg-white rounded-xl border border-surface-border p-4 shadow-sm">
+        <p class="text-xs text-ink-muted font-medium mb-1">Cedera berat (non-fatal)</p>
+        <p id="ko-highcons" class="text-2xl font-bold text-amber">—</p>
+      </div>
+      <div class="bg-white rounded-xl border border-surface-border p-4 shadow-sm">
+        <p class="text-xs text-ink-muted font-medium mb-1">Kecelakaan tercatat</p>
+        <p id="ko-recordable" class="text-2xl font-bold text-orange">—</p>
+      </div>
+      <div class="bg-white rounded-xl border border-surface-border p-4 shadow-sm">
+        <p class="text-xs text-ink-muted font-medium mb-1">Total jam kerja</p>
+        <p id="ko-hours" class="text-2xl font-bold text-accent">—</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-white rounded-xl border border-surface-border p-5 shadow-sm">
+        <h2 class="text-sm font-semibold text-ink mb-1">Insiden keselamatan kerja per tahun</h2>
+        <p class="text-xs text-ink-muted mb-4">GRI 403-9a — Fatality, High-consequence, Recordable</p>
+        <div class="chart-wrap" style="height:220px"><canvas id="c-ohs-incident"></canvas></div>
+        <div id="l-ohs-incident" class="flex flex-wrap gap-3 mt-3"></div>
+      </div>
+      <div class="bg-white rounded-xl border border-surface-border p-5 shadow-sm">
+        <h2 class="text-sm font-semibold text-ink mb-1">Insiden tetap vs kontrak</h2>
+        <p class="text-xs text-ink-muted mb-4">GRI 403-9a — Breakdown karyawan tetap & kontrak</p>
+        <div class="chart-wrap" style="height:220px"><canvas id="c-ohs-type"></canvas></div>
+        <div id="l-ohs-type" class="flex flex-wrap gap-3 mt-3"></div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl border border-surface-border p-5 shadow-sm">
+      <h2 class="text-sm font-semibold text-ink mb-1">Tren jam kerja & tingkat kecelakaan</h2>
+      <p class="text-xs text-ink-muted mb-4">GRI 403-9a — Jam kerja vs jumlah kecelakaan tercatat</p>
+      <div class="chart-wrap" style="height:220px"><canvas id="c-ohs-trend"></canvas></div>
+      <div id="l-ohs-trend" class="flex flex-wrap gap-3 mt-3"></div>
+    </div>
+  </div>
+
+  <!-- ==================== TRAINING ==================== -->
+  <div id="sec-training" class="tab-section space-y-6">
+    <div class="flex items-center gap-2 mb-1">
+      <span class="category-badge bg-green/10 text-green">GRI 404-1</span>
+      <span class="text-xs text-ink-muted">Pelatihan & pendidikan karyawan</span>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div class="bg-white rounded-xl border border-surface-border p-4 shadow-sm">
+        <p class="text-xs text-ink-muted font-medium mb-1">Rata-rata jam pelatihan (Pria)</p>
+        <p id="kt-avg-m" class="text-2xl font-bold text-accent">—</p>
+      </div>
+      <div class="bg-white rounded-xl border border-surface-border p-4 shadow-sm">
+        <p class="text-xs text-ink-muted font-medium mb-1">Rata-rata jam pelatihan (Wanita)</p>
+        <p id="kt-avg-f" class="text-2xl font-bold text-rose">—</p>
+      </div>
+      <div class="bg-white rounded-xl border border-surface-border p-4 shadow-sm">
+        <p class="text-xs text-ink-muted font-medium mb-1">Jam pelatihan (Senior)</p>
+        <p id="kt-hrs-sr" class="text-2xl font-bold text-teal">—</p>
+      </div>
+      <div class="bg-white rounded-xl border border-surface-border p-4 shadow-sm">
+        <p class="text-xs text-ink-muted font-medium mb-1">Jam pelatihan (Junior)</p>
+        <p id="kt-hrs-jr" class="text-2xl font-bold text-violet">—</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-white rounded-xl border border-surface-border p-5 shadow-sm">
+        <h2 class="text-sm font-semibold text-ink mb-1">Rata-rata jam pelatihan per gender</h2>
+        <p class="text-xs text-ink-muted mb-4">GRI 404-1a — Jam rata-rata per karyawan per tahun</p>
+        <div class="chart-wrap" style="height:220px"><canvas id="c-train-gender"></canvas></div>
+        <div id="l-train-gender" class="flex flex-wrap gap-3 mt-3"></div>
+      </div>
+      <div class="bg-white rounded-xl border border-surface-border p-5 shadow-sm">
+        <h2 class="text-sm font-semibold text-ink mb-1">Rata-rata jam pelatihan per kategori karyawan</h2>
+        <p class="text-xs text-ink-muted mb-4">GRI 404-1a — Senior, Mid, Junior, Staff</p>
+        <div class="chart-wrap" style="height:220px"><canvas id="c-train-category"></canvas></div>
+        <div id="l-train-category" class="flex flex-wrap gap-3 mt-3"></div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl border border-surface-border p-5 shadow-sm">
+      <h2 class="text-sm font-semibold text-ink mb-1">Tren jam pelatihan per tahun</h2>
+      <p class="text-xs text-ink-muted mb-4">GRI 404-1 — Total & rata-rata jam pelatihan</p>
+      <div class="chart-wrap" style="height:220px"><canvas id="c-train-trend"></canvas></div>
+      <div id="l-train-trend" class="flex flex-wrap gap-3 mt-3"></div>
+    </div>
+  </div>
+
+</main>
+
+<footer class="text-center text-xs text-ink-faint py-6 mt-4 border-t border-surface-border">
+  Dashboard ESG Sintesa Group · GRI Standards · 2023–2025 · Data HR & Sustainability Internal
+</footer>
+
+<script>
+/* ===== RAW DATA: GENERAL (GRI 2-7, 2-8) ===== */
+const RAW = {
+  WS:   {gender:{2023:{m:620,f:180},2024:{m:350,f:510},2025:{m:260,f:490}},status:{2023:{p:680,c:120},2024:{p:680,c:180},2025:{p:590,c:160}},workers:{2023:{con:5,int:18,vol:12,out:10},2024:{con:2,int:22,vol:2,out:18},2025:{con:18,int:18,vol:1,out:20}}},
+  SDS:  {gender:{2023:{m:180,f:50},2024:{m:95,f:140},2025:{m:70,f:130}},status:{2023:{p:185,c:45},2024:{p:185,c:50},2025:{p:162,c:38}},workers:{2023:{con:1,int:5,vol:3,out:3},2024:{con:0,int:7,vol:1,out:5},2025:{con:5,int:5,vol:0,out:6}}},
+  MEPPO:{gender:{2023:{m:160,f:45},2024:{m:85,f:120},2025:{m:62,f:115}},status:{2023:{p:165,c:40},2024:{p:165,c:40},2025:{p:145,c:32}},workers:{2023:{con:1,int:5,vol:3,out:3},2024:{con:0,int:6,vol:0,out:5},2025:{con:4,int:5,vol:0,out:5}}},
+  SBG:  {gender:{2023:{m:90,f:25},2024:{m:48,f:67},2025:{m:35,f:64}},status:{2023:{p:90,c:25},2024:{p:90,c:25},2025:{p:80,c:19}},workers:{2023:{con:0,int:3,vol:2,out:2},2024:{con:0,int:4,vol:0,out:3},2025:{con:3,int:3,vol:0,out:3}}},
+  SGE:  {gender:{2023:{m:110,f:30},2024:{m:58,f:82},2025:{m:42,f:78}},status:{2023:{p:110,c:30},2024:{p:110,c:30},2025:{p:97,c:23}},workers:{2023:{con:1,int:4,vol:2,out:2},2024:{con:0,int:5,vol:0,out:4},2025:{con:4,int:4,vol:0,out:4}}},
+  TES:  {gender:{2023:{m:130,f:36},2024:{m:69,f:97},2025:{m:50,f:93}},status:{2023:{p:130,c:36},2024:{p:130,c:36},2025:{p:115,c:28}},workers:{2023:{con:1,int:4,vol:3,out:3},2024:{con:0,int:5,vol:1,out:4},2025:{con:4,int:4,vol:0,out:4}}},
+  MPRD: {gender:{2023:{m:95,f:26},2024:{m:50,f:71},2025:{m:36,f:68}},status:{2023:{p:96,c:25},2024:{p:96,c:25},2025:{p:85,c:19}},workers:{2023:{con:0,int:3,vol:2,out:2},2024:{con:0,int:4,vol:0,out:3},2025:{con:3,int:3,vol:0,out:3}}},
+  MD:   {gender:{2023:{m:280,f:78},2024:{m:149,f:209},2025:{m:108,f:200}},status:{2023:{p:282,c:76},2024:{p:282,c:76},2025:{p:248,c:60}},workers:{2023:{con:2,int:8,vol:6,out:6},2024:{con:1,int:10,vol:1,out:8},2025:{con:8,int:8,vol:0,out:8}}},
+  TA:   {gender:{2023:{m:185,f:51},2024:{m:98,f:138},2025:{m:71,f:132}},status:{2023:{p:186,c:50},2024:{p:186,c:50},2025:{p:164,c:39}},workers:{2023:{con:1,int:5,vol:4,out:4},2024:{con:1,int:6,vol:1,out:5},2025:{con:5,int:5,vol:0,out:5}}},
+  TRS:  {gender:{2023:{m:170,f:47},2024:{m:90,f:127},2025:{m:65,f:122}},status:{2023:{p:171,c:46},2024:{p:171,c:46},2025:{p:151,c:36}},workers:{2023:{con:1,int:5,vol:3,out:3},2024:{con:1,int:6,vol:1,out:5},2025:{con:5,int:5,vol:0,out:5}}},
+  MPH:  {gender:{2023:{m:115,f:32},2024:{m:61,f:86},2025:{m:44,f:83}},status:{2023:{p:116,c:31},2024:{p:116,c:31},2025:{p:102,c:25}},workers:{2023:{con:1,int:3,vol:2,out:2},2024:{con:0,int:4,vol:0,out:3},2025:{con:3,int:3,vol:0,out:3}}},
+  SPP:  {gender:{2023:{m:65,f:18},2024:{m:35,f:49},2025:{m:25,f:47}},status:{2023:{p:66,c:17},2024:{p:66,c:17},2025:{p:58,c:14}},workers:{2023:{con:1,int:2,vol:1,out:1},2024:{con:0,int:2,vol:0,out:2},2025:{con:2,int:2,vol:0,out:2}}},
+  SPM:  {gender:{2023:{m:60,f:17},2024:{m:32,f:45},2025:{m:23,f:43}},status:{2023:{p:61,c:16},2024:{p:61,c:16},2025:{p:54,c:12}},workers:{2023:{con:0,int:2,vol:1,out:1},2024:{con:0,int:2,vol:0,out:2},2025:{con:2,int:2,vol:0,out:2}}},
+  GSME: {gender:{2023:{m:40,f:11},2024:{m:21,f:30},2025:{m:15,f:29}},status:{2023:{p:41,c:10},2024:{p:41,c:10},2025:{p:36,c:8}},workers:{2023:{con:0,int:1,vol:1,out:1},2024:{con:0,int:2,vol:0,out:1},2025:{con:1,int:1,vol:0,out:1}}},
+  PMB:  {gender:{2023:{m:16,f:4},2024:{m:8,f:12},2025:{m:6,f:10}},status:{2023:{p:16,c:4},2024:{p:16,c:4},2025:{p:15,c:1}},workers:{2023:{con:0,int:1,vol:0,out:0},2024:{con:0,int:1,vol:0,out:0},2025:{con:1,int:1,vol:0,out:1}}},
+};
+
+/* ===== RAW DATA: ENERGY (GRI 302-1) — placeholder ===== */
+const ENERGY = {
+  WS:   {2023:{nonren:45200,ren:3200,solar:800,biodiesel:1200,grid:1200},2024:{nonren:43800,ren:4100,solar:1200,biodiesel:1600,grid:1300},2025:{nonren:41500,ren:5200,solar:1800,biodiesel:1900,grid:1500}},
+  SDS:  {2023:{nonren:12400,ren:800},2024:{nonren:11900,ren:1100},2025:{nonren:11200,ren:1400}},
+  MEPPO:{2023:{nonren:11100,ren:700},2024:{nonren:10800,ren:950},2025:{nonren:10200,ren:1200}},
+  SBG:  {2023:{nonren:6200,ren:400},2024:{nonren:6000,ren:540},2025:{nonren:5700,ren:700}},
+  SGE:  {2023:{nonren:7600,ren:900},2024:{nonren:7400,ren:1200},2025:{nonren:7000,ren:1600}},
+  TES:  {2023:{nonren:9000,ren:550},2024:{nonren:8800,ren:730},2025:{nonren:8400,ren:950}},
+  MPRD: {2023:{nonren:6600,ren:380},2024:{nonren:6400,ren:500},2025:{nonren:6100,ren:650}},
+  MD:   {2023:{nonren:19400,ren:1200},2024:{nonren:18800,ren:1600},2025:{nonren:17900,ren:2100}},
+  TA:   {2023:{nonren:12800,ren:780},2024:{nonren:12400,ren:1050},2025:{nonren:11800,ren:1380}},
+  TRS:  {2023:{nonren:11800,ren:720},2024:{nonren:11500,ren:960},2025:{nonren:10900,ren:1260}},
+  MPH:  {2023:{nonren:7900,ren:490},2024:{nonren:7700,ren:650},2025:{nonren:7300,ren:860}},
+  SPP:  {2023:{nonren:4500,ren:275},2024:{nonren:4380,ren:370},2025:{nonren:4160,ren:490}},
+  SPM:  {2023:{nonren:4160,ren:250},2024:{nonren:4040,ren:340},2025:{nonren:3840,ren:450}},
+  GSME: {2023:{nonren:2770,ren:170},2024:{nonren:2690,ren:225},2025:{nonren:2560,ren:300}},
+  PMB:  {2023:{nonren:1100,ren:70},2024:{nonren:1070,ren:90},2025:{nonren:1020,ren:120}},
+};
+
+/* ===== RAW DATA: WASTE (GRI 306-4/5) — placeholder ===== */
+const WASTE = {
+  WS:   {2023:{divert:{recycled:45,composted:12,recovery:8},disposal:{landfill:28,incineration:5,other:2}},2024:{divert:{recycled:52,composted:14,recovery:10},disposal:{landfill:25,incineration:4,other:2}},2025:{divert:{recycled:61,composted:17,recovery:12},disposal:{landfill:22,incineration:3,other:1}}},
+  SDS:  {2023:{divert:{recycled:12,composted:3,recovery:2},disposal:{landfill:8,incineration:1,other:1}},2024:{divert:{recycled:14,composted:4,recovery:3},disposal:{landfill:7,incineration:1,other:0}},2025:{divert:{recycled:17,composted:5,recovery:3},disposal:{landfill:6,incineration:1,other:0}}},
+  MEPPO:{2023:{divert:{recycled:11,composted:3,recovery:2},disposal:{landfill:7,incineration:1,other:1}},2024:{divert:{recycled:13,composted:3,recovery:2},disposal:{landfill:6,incineration:1,other:0}},2025:{divert:{recycled:15,composted:4,recovery:3},disposal:{landfill:5,incineration:1,other:0}}},
+  SBG:  {2023:{divert:{recycled:6,composted:2,recovery:1},disposal:{landfill:4,incineration:1,other:0}},2024:{divert:{recycled:7,composted:2,recovery:1},disposal:{landfill:3,incineration:0,other:0}},2025:{divert:{recycled:9,composted:2,recovery:2},disposal:{landfill:3,incineration:0,other:0}}},
+  SGE:  {2023:{divert:{recycled:8,composted:2,recovery:1},disposal:{landfill:5,incineration:1,other:0}},2024:{divert:{recycled:9,composted:2,recovery:2},disposal:{landfill:4,incineration:1,other:0}},2025:{divert:{recycled:11,composted:3,recovery:2},disposal:{landfill:4,incineration:0,other:0}}},
+  TES:  {2023:{divert:{recycled:9,composted:2,recovery:2},disposal:{landfill:5,incineration:1,other:0}},2024:{divert:{recycled:10,composted:3,recovery:2},disposal:{landfill:5,incineration:1,other:0}},2025:{divert:{recycled:12,composted:3,recovery:2},disposal:{landfill:4,incineration:0,other:0}}},
+  MPRD: {2023:{divert:{recycled:7,composted:2,recovery:1},disposal:{landfill:4,incineration:0,other:0}},2024:{divert:{recycled:8,composted:2,recovery:1},disposal:{landfill:4,incineration:0,other:0}},2025:{divert:{recycled:9,composted:2,recovery:2},disposal:{landfill:3,incineration:0,other:0}}},
+  MD:   {2023:{divert:{recycled:20,composted:5,recovery:4},disposal:{landfill:13,incineration:2,other:1}},2024:{divert:{recycled:23,composted:6,recovery:5},disposal:{landfill:12,incineration:2,other:1}},2025:{divert:{recycled:27,composted:7,recovery:6},disposal:{landfill:10,incineration:1,other:0}}},
+  TA:   {2023:{divert:{recycled:13,composted:3,recovery:2},disposal:{landfill:8,incineration:1,other:1}},2024:{divert:{recycled:15,composted:4,recovery:3},disposal:{landfill:7,incineration:1,other:0}},2025:{divert:{recycled:18,composted:5,recovery:3},disposal:{landfill:6,incineration:1,other:0}}},
+  TRS:  {2023:{divert:{recycled:12,composted:3,recovery:2},disposal:{landfill:7,incineration:1,other:0}},2024:{divert:{recycled:14,composted:4,recovery:3},disposal:{landfill:7,incineration:1,other:0}},2025:{divert:{recycled:16,composted:4,recovery:3},disposal:{landfill:6,incineration:1,other:0}}},
+  MPH:  {2023:{divert:{recycled:8,composted:2,recovery:1},disposal:{landfill:5,incineration:1,other:0}},2024:{divert:{recycled:9,composted:2,recovery:2},disposal:{landfill:5,incineration:1,other:0}},2025:{divert:{recycled:11,composted:3,recovery:2},disposal:{landfill:4,incineration:0,other:0}}},
+  SPP:  {2023:{divert:{recycled:5,composted:1,recovery:1},disposal:{landfill:3,incineration:0,other:0}},2024:{divert:{recycled:6,composted:2,recovery:1},disposal:{landfill:3,incineration:0,other:0}},2025:{divert:{recycled:7,composted:2,recovery:1},disposal:{landfill:2,incineration:0,other:0}}},
+  SPM:  {2023:{divert:{recycled:5,composted:1,recovery:1},disposal:{landfill:3,incineration:0,other:0}},2024:{divert:{recycled:5,composted:1,recovery:1},disposal:{landfill:3,incineration:0,other:0}},2025:{divert:{recycled:6,composted:2,recovery:1},disposal:{landfill:2,incineration:0,other:0}}},
+  GSME: {2023:{divert:{recycled:3,composted:1,recovery:0},disposal:{landfill:2,incineration:0,other:0}},2024:{divert:{recycled:3,composted:1,recovery:1},disposal:{landfill:2,incineration:0,other:0}},2025:{divert:{recycled:4,composted:1,recovery:1},disposal:{landfill:2,incineration:0,other:0}}},
+  PMB:  {2023:{divert:{recycled:1,composted:0,recovery:0},disposal:{landfill:1,incineration:0,other:0}},2024:{divert:{recycled:1,composted:0,recovery:0},disposal:{landfill:1,incineration:0,other:0}},2025:{divert:{recycled:2,composted:1,recovery:0},disposal:{landfill:1,incineration:0,other:0}}},
+};
+
+/* ===== RAW DATA: WATER (GRI 303-3/4) — placeholder ===== */
+const WATER = {
+  WS:   {2023:{wd:{surface:120,ground:45,seawater:0,third:85},discharge:{surface:90,ground:20,seawater:0,third:30}},2024:{wd:{surface:115,ground:42,seawater:0,third:80},discharge:{surface:87,ground:18,seawater:0,third:28}},2025:{wd:{surface:108,ground:38,seawater:0,third:75},discharge:{surface:82,ground:16,seawater:0,third:25}}},
+  SDS:  {2023:{wd:{surface:32,ground:12,seawater:0,third:22},discharge:{surface:24,ground:5,seawater:0,third:8}},2024:{wd:{surface:31,ground:11,seawater:0,third:21},discharge:{surface:23,ground:5,seawater:0,third:7}},2025:{wd:{surface:29,ground:10,seawater:0,third:20},discharge:{surface:22,ground:4,seawater:0,third:7}}},
+  MEPPO:{2023:{wd:{surface:28,ground:11,seawater:0,third:20},discharge:{surface:21,ground:5,seawater:0,third:7}},2024:{wd:{surface:27,ground:10,seawater:0,third:19},discharge:{surface:20,ground:4,seawater:0,third:7}},2025:{wd:{surface:26,ground:9,seawater:0,third:18},discharge:{surface:19,ground:4,seawater:0,third:6}}},
+  SBG:  {2023:{wd:{surface:16,ground:6,seawater:0,third:11},discharge:{surface:12,ground:3,seawater:0,third:4}},2024:{wd:{surface:15,ground:6,seawater:0,third:11},discharge:{surface:11,ground:2,seawater:0,third:4}},2025:{wd:{surface:14,ground:5,seawater:0,third:10},discharge:{surface:11,ground:2,seawater:0,third:3}}},
+  SGE:  {2023:{wd:{surface:19,ground:7,seawater:0,third:14},discharge:{surface:14,ground:3,seawater:0,third:5}},2024:{wd:{surface:18,ground:7,seawater:0,third:13},discharge:{surface:14,ground:3,seawater:0,third:5}},2025:{wd:{surface:17,ground:6,seawater:0,third:12},discharge:{surface:13,ground:3,seawater:0,third:4}}},
+  TES:  {2023:{wd:{surface:23,ground:9,seawater:0,third:16},discharge:{surface:17,ground:4,seawater:0,third:6}},2024:{wd:{surface:22,ground:8,seawater:0,third:15},discharge:{surface:16,ground:4,seawater:0,third:5}},2025:{wd:{surface:21,ground:8,seawater:0,third:14},discharge:{surface:15,ground:3,seawater:0,third:5}}},
+  MPRD: {2023:{wd:{surface:17,ground:6,seawater:2,third:12},discharge:{surface:13,ground:3,seawater:1,third:4}},2024:{wd:{surface:16,ground:6,seawater:2,third:11},discharge:{surface:12,ground:2,seawater:1,third:4}},2025:{wd:{surface:15,ground:5,seawater:2,third:11},discharge:{surface:11,ground:2,seawater:1,third:4}}},
+  MD:   {2023:{wd:{surface:49,ground:18,seawater:0,third:35},discharge:{surface:37,ground:8,seawater:0,third:12}},2024:{wd:{surface:47,ground:17,seawater:0,third:33},discharge:{surface:35,ground:7,seawater:0,third:12}},2025:{wd:{surface:44,ground:16,seawater:0,third:31},discharge:{surface:33,ground:7,seawater:0,third:11}}},
+  TA:   {2023:{wd:{surface:32,ground:12,seawater:0,third:23},discharge:{surface:24,ground:5,seawater:0,third:8}},2024:{wd:{surface:31,ground:11,seawater:0,third:22},discharge:{surface:23,ground:5,seawater:0,third:8}},2025:{wd:{surface:29,ground:10,seawater:0,third:21},discharge:{surface:22,ground:4,seawater:0,third:7}}},
+  TRS:  {2023:{wd:{surface:30,ground:11,seawater:0,third:21},discharge:{surface:22,ground:5,seawater:0,third:7}},2024:{wd:{surface:28,ground:10,seawater:0,third:20},discharge:{surface:21,ground:4,seawater:0,third:7}},2025:{wd:{surface:27,ground:10,seawater:0,third:19},discharge:{surface:20,ground:4,seawater:0,third:6}}},
+  MPH:  {2023:{wd:{surface:20,ground:7,seawater:0,third:14},discharge:{surface:15,ground:3,seawater:0,third:5}},2024:{wd:{surface:19,ground:7,seawater:0,third:14},discharge:{surface:14,ground:3,seawater:0,third:5}},2025:{wd:{surface:18,ground:6,seawater:0,third:13},discharge:{surface:14,ground:3,seawater:0,third:4}}},
+  SPP:  {2023:{wd:{surface:11,ground:4,seawater:0,third:8},discharge:{surface:8,ground:2,seawater:0,third:3}},2024:{wd:{surface:11,ground:4,seawater:0,third:8},discharge:{surface:8,ground:2,seawater:0,third:3}},2025:{wd:{surface:10,ground:4,seawater:0,third:7},discharge:{surface:7,ground:2,seawater:0,third:2}}},
+  SPM:  {2023:{wd:{surface:10,ground:4,seawater:1,third:7},discharge:{surface:8,ground:2,seawater:0,third:2}},2024:{wd:{surface:10,ground:4,seawater:1,third:7},discharge:{surface:7,ground:2,seawater:0,third:2}},2025:{wd:{surface:9,ground:3,seawater:1,third:6},discharge:{surface:7,ground:1,seawater:0,third:2}}},
+  GSME: {2023:{wd:{surface:7,ground:2,seawater:0,third:5},discharge:{surface:5,ground:1,seawater:0,third:2}},2024:{wd:{surface:7,ground:2,seawater:0,third:5},discharge:{surface:5,ground:1,seawater:0,third:2}},2025:{wd:{surface:6,ground:2,seawater:0,third:4},discharge:{surface:5,ground:1,seawater:0,third:1}}},
+  PMB:  {2023:{wd:{surface:3,ground:1,seawater:0,third:2},discharge:{surface:2,ground:0,seawater:0,third:1}},2024:{wd:{surface:3,ground:1,seawater:0,third:2},discharge:{surface:2,ground:0,seawater:0,third:1}},2025:{wd:{surface:2,ground:1,seawater:0,third:2},discharge:{surface:2,ground:0,seawater:0,third:1}}},
+};
+
+/* ===== RAW DATA: DIVERSITY (GRI 405) — placeholder ===== */
+const DIVERSITY = {
+  WS:   {2023:{gov:{m:5,f:2},age:{u30:185,a3050:478,o50:137},salary:{senior:0.93,mid:0.96,junior:0.99}},2024:{gov:{m:5,f:2},age:{u30:202,a3050:512,o50:146},salary:{senior:0.94,mid:0.97,junior:0.99}},2025:{gov:{m:5,f:3},age:{u30:195,a3050:425,o50:130},salary:{senior:0.95,mid:0.97,junior:1.00}}},
+  SDS:  {2023:{gov:{m:3,f:1},age:{u30:50,a3050:132,o50:48},salary:{senior:0.91,mid:0.95,junior:0.98}},2024:{gov:{m:3,f:1},age:{u30:55,a3050:142,o50:43},salary:{senior:0.92,mid:0.96,junior:0.99}},2025:{gov:{m:3,f:1},age:{u30:52,a3050:118,o50:30},salary:{senior:0.93,mid:0.96,junior:0.99}}},
+  MEPPO:{2023:{gov:{m:3,f:1},age:{u30:44,a3050:117,o50:44},salary:{senior:0.90,mid:0.94,junior:0.97}},2024:{gov:{m:3,f:1},age:{u30:49,a3050:126,o50:30},salary:{senior:0.91,mid:0.95,junior:0.98}},2025:{gov:{m:3,f:1},age:{u30:46,a3050:104,o50:27},salary:{senior:0.92,mid:0.96,junior:0.99}}},
+  SBG:  {2023:{gov:{m:2,f:1},age:{u30:25,a3050:68,o50:22},salary:{senior:0.92,mid:0.95,junior:0.98}},2024:{gov:{m:2,f:1},age:{u30:27,a3050:73,o50:20},salary:{senior:0.92,mid:0.96,junior:0.99}},2025:{gov:{m:2,f:1},age:{u30:26,a3050:61,o50:12},salary:{senior:0.93,mid:0.97,junior:0.99}}},
+  SGE:  {2023:{gov:{m:3,f:1},age:{u30:30,a3050:82,o50:28},salary:{senior:0.91,mid:0.95,junior:0.98}},2024:{gov:{m:3,f:1},age:{u30:33,a3050:88,o50:19},salary:{senior:0.92,mid:0.96,junior:0.99}},2025:{gov:{m:3,f:1},age:{u30:32,a3050:73,o50:15},salary:{senior:0.93,mid:0.96,junior:0.99}}},
+  TES:  {2023:{gov:{m:3,f:1},age:{u30:36,a3050:98,o50:32},salary:{senior:0.91,mid:0.95,junior:0.98}},2024:{gov:{m:3,f:1},age:{u30:39,a3050:105,o50:22},salary:{senior:0.92,mid:0.96,junior:0.98}},2025:{gov:{m:3,f:1},age:{u30:38,a3050:87,o50:18},salary:{senior:0.93,mid:0.96,junior:0.99}}},
+  MPRD: {2023:{gov:{m:2,f:1},age:{u30:26,a3050:71,o50:24},salary:{senior:0.92,mid:0.95,junior:0.98}},2024:{gov:{m:2,f:1},age:{u30:29,a3050:76,o50:16},salary:{senior:0.92,mid:0.96,junior:0.99}},2025:{gov:{m:2,f:1},age:{u30:27,a3050:63,o50:14},salary:{senior:0.93,mid:0.96,junior:0.99}}},
+  MD:   {2023:{gov:{m:4,f:2},age:{u30:78,a3050:213,o50:67},salary:{senior:0.92,mid:0.96,junior:0.99}},2024:{gov:{m:4,f:2},age:{u30:85,a3050:228,o50:45},salary:{senior:0.93,mid:0.96,junior:0.99}},2025:{gov:{m:4,f:2},age:{u30:82,a3050:189,o50:37},salary:{senior:0.94,mid:0.97,junior:1.00}}},
+  TA:   {2023:{gov:{m:3,f:1},age:{u30:51,a3050:140,o50:45},salary:{senior:0.91,mid:0.95,junior:0.98}},2024:{gov:{m:3,f:1},age:{u30:56,a3050:150,o50:28},salary:{senior:0.92,mid:0.96,junior:0.99}},2025:{gov:{m:3,f:1},age:{u30:54,a3050:124,o50:25},salary:{senior:0.93,mid:0.96,junior:0.99}}},
+  TRS:  {2023:{gov:{m:3,f:1},age:{u30:47,a3050:129,o50:41},salary:{senior:0.91,mid:0.95,junior:0.98}},2024:{gov:{m:3,f:1},age:{u30:51,a3050:138,o50:28},salary:{senior:0.92,mid:0.96,junior:0.98}},2025:{gov:{m:3,f:1},age:{u30:49,a3050:114,o50:24},salary:{senior:0.93,mid:0.97,junior:0.99}}},
+  MPH:  {2023:{gov:{m:2,f:1},age:{u30:32,a3050:87,o50:28},salary:{senior:0.91,mid:0.95,junior:0.98}},2024:{gov:{m:2,f:1},age:{u30:35,a3050:93,o50:19},salary:{senior:0.92,mid:0.96,junior:0.99}},2025:{gov:{m:2,f:1},age:{u30:33,a3050:77,o50:17},salary:{senior:0.93,mid:0.96,junior:0.99}}},
+  SPP:  {2023:{gov:{m:2,f:1},age:{u30:18,a3050:50,o50:15},salary:{senior:0.92,mid:0.96,junior:0.99}},2024:{gov:{m:2,f:1},age:{u30:20,a3050:53,o50:10},salary:{senior:0.93,mid:0.96,junior:0.99}},2025:{gov:{m:2,f:1},age:{u30:19,a3050:44,o50:9},salary:{senior:0.93,mid:0.97,junior:1.00}}},
+  SPM:  {2023:{gov:{m:2,f:1},age:{u30:17,a3050:46,o50:14},salary:{senior:0.92,mid:0.96,junior:0.99}},2024:{gov:{m:2,f:1},age:{u30:18,a3050:49,o50:10},salary:{senior:0.92,mid:0.96,junior:0.99}},2025:{gov:{m:2,f:1},age:{u30:17,a3050:41,o50:8},salary:{senior:0.93,mid:0.97,junior:0.99}}},
+  GSME: {2023:{gov:{m:2,f:0},age:{u30:11,a3050:31,o50:9},salary:{senior:0.90,mid:0.94,junior:0.97}},2024:{gov:{m:2,f:0},age:{u30:12,a3050:33,o50:6},salary:{senior:0.91,mid:0.95,junior:0.98}},2025:{gov:{m:2,f:1},age:{u30:11,a3050:27,o50:6},salary:{senior:0.92,mid:0.96,junior:0.99}}},
+  PMB:  {2023:{gov:{m:1,f:0},age:{u30:4,a3050:12,o50:4},salary:{senior:0.91,mid:0.95,junior:0.98}},2024:{gov:{m:1,f:0},age:{u30:5,a3050:13,o50:2},salary:{senior:0.92,mid:0.96,junior:0.99}},2025:{gov:{m:1,f:0},age:{u30:4,a3050:11,o50:1},salary:{senior:0.92,mid:0.96,junior:0.99}}},
+};
+
+/* ===== RAW DATA: EMPLOYMENT (GRI 401) — placeholder ===== */
+const EMPLOYMENT = {
+  WS:   {2023:{new:{m:68,f:25,u30:42,a3050:38,o50:13},parental:{entitled:{m:28,f:22},took:{m:18,f:20},returned:{m:17,f:19}}},2024:{new:{m:42,f:55,u30:51,a3050:38,o50:8},parental:{entitled:{m:30,f:24},took:{m:20,f:22},returned:{m:19,f:21}}},2025:{new:{m:38,f:48,u30:44,a3050:35,o50:7},parental:{entitled:{m:28,f:25},took:{m:19,f:23},returned:{m:18,f:22}}}},
+  SDS:  {2023:{new:{m:19,f:7,u30:12,a3050:10,o50:4},parental:{entitled:{m:8,f:6},took:{m:5,f:5},returned:{m:5,f:5}}},2024:{new:{m:12,f:15,u30:14,a3050:10,o50:3},parental:{entitled:{m:8,f:6},took:{m:5,f:6},returned:{m:5,f:6}}},2025:{new:{m:10,f:13,u30:12,a3050:9,o50:2},parental:{entitled:{m:8,f:7},took:{m:5,f:6},returned:{m:5,f:6}}}},
+  MEPPO:{2023:{new:{m:17,f:6,u30:10,a3050:9,o50:4},parental:{entitled:{m:7,f:5},took:{m:4,f:5},returned:{m:4,f:4}}},2024:{new:{m:10,f:13,u30:12,a3050:9,o50:2},parental:{entitled:{m:7,f:5},took:{m:5,f:5},returned:{m:4,f:5}}},2025:{new:{m:9,f:12,u30:11,a3050:8,o50:2},parental:{entitled:{m:7,f:6},took:{m:4,f:5},returned:{m:4,f:5}}}},
+  SBG:  {2023:{new:{m:9,f:3,u30:6,a3050:5,o50:1},parental:{entitled:{m:4,f:3},took:{m:2,f:2},returned:{m:2,f:2}}},2024:{new:{m:6,f:7,u30:6,a3050:5,o50:2},parental:{entitled:{m:4,f:3},took:{m:3,f:3},returned:{m:3,f:3}}},2025:{new:{m:5,f:7,u30:6,a3050:5,o50:1},parental:{entitled:{m:4,f:3},took:{m:3,f:3},returned:{m:2,f:3}}}},
+  SGE:  {2023:{new:{m:11,f:4,u30:7,a3050:6,o50:2},parental:{entitled:{m:5,f:3},took:{m:3,f:3},returned:{m:3,f:3}}},2024:{new:{m:7,f:9,u30:8,a3050:6,o50:2},parental:{entitled:{m:5,f:4},took:{m:3,f:3},returned:{m:3,f:3}}},2025:{new:{m:6,f:8,u30:7,a3050:6,o50:1},parental:{entitled:{m:5,f:4},took:{m:3,f:4},returned:{m:3,f:3}}}},
+  TES:  {2023:{new:{m:13,f:5,u30:8,a3050:7,o50:3},parental:{entitled:{m:6,f:4},took:{m:3,f:3},returned:{m:3,f:3}}},2024:{new:{m:8,f:10,u30:9,a3050:7,o50:2},parental:{entitled:{m:6,f:4},took:{m:4,f:4},returned:{m:4,f:4}}},2025:{new:{m:7,f:9,u30:8,a3050:6,o50:2},parental:{entitled:{m:6,f:5},took:{m:4,f:4},returned:{m:3,f:4}}}},
+  MPRD: {2023:{new:{m:10,f:3,u30:6,a3050:5,o50:2},parental:{entitled:{m:4,f:3},took:{m:2,f:2},returned:{m:2,f:2}}},2024:{new:{m:6,f:7,u30:6,a3050:5,o50:2},parental:{entitled:{m:4,f:3},took:{m:3,f:3},returned:{m:3,f:3}}},2025:{new:{m:5,f:7,u30:6,a3050:5,o50:1},parental:{entitled:{m:4,f:3},took:{m:2,f:3},returned:{m:2,f:3}}}},
+  MD:   {2023:{new:{m:29,f:10,u30:18,a3050:15,o50:6},parental:{entitled:{m:12,f:9},took:{m:7,f:8},returned:{m:7,f:8}}},2024:{new:{m:18,f:23,u30:21,a3050:15,o50:5},parental:{entitled:{m:12,f:9},took:{m:8,f:9},returned:{m:8,f:8}}},2025:{new:{m:16,f:21,u30:19,a3050:14,o50:4},parental:{entitled:{m:12,f:10},took:{m:8,f:9},returned:{m:7,f:9}}}},
+  TA:   {2023:{new:{m:19,f:7,u30:12,a3050:10,o50:4},parental:{entitled:{m:8,f:6},took:{m:5,f:5},returned:{m:5,f:5}}},2024:{new:{m:12,f:15,u30:13,a3050:11,o50:3},parental:{entitled:{m:8,f:6},took:{m:5,f:6},returned:{m:5,f:5}}},2025:{new:{m:10,f:13,u30:12,a3050:9,o50:2},parental:{entitled:{m:8,f:7},took:{m:5,f:6},returned:{m:5,f:6}}}},
+  TRS:  {2023:{new:{m:18,f:6,u30:11,a3050:10,o50:3},parental:{entitled:{m:7,f:5},took:{m:4,f:5},returned:{m:4,f:5}}},2024:{new:{m:11,f:14,u30:13,a3050:10,o50:2},parental:{entitled:{m:7,f:5},took:{m:5,f:5},returned:{m:5,f:5}}},2025:{new:{m:9,f:12,u30:11,a3050:8,o50:2},parental:{entitled:{m:7,f:6},took:{m:4,f:5},returned:{m:4,f:5}}}},
+  MPH:  {2023:{new:{m:12,f:4,u30:7,a3050:6,o50:3},parental:{entitled:{m:5,f:4},took:{m:3,f:3},returned:{m:3,f:3}}},2024:{new:{m:7,f:9,u30:8,a3050:6,o50:2},parental:{entitled:{m:5,f:4},took:{m:3,f:4},returned:{m:3,f:3}}},2025:{new:{m:6,f:8,u30:7,a3050:6,o50:1},parental:{entitled:{m:5,f:4},took:{m:3,f:4},returned:{m:3,f:3}}}},
+  SPP:  {2023:{new:{m:7,f:2,u30:4,a3050:4,o50:1},parental:{entitled:{m:3,f:2},took:{m:2,f:2},returned:{m:2,f:2}}},2024:{new:{m:4,f:5,u30:5,a3050:3,o50:1},parental:{entitled:{m:3,f:2},took:{m:2,f:2},returned:{m:2,f:2}}},2025:{new:{m:4,f:5,u30:4,a3050:4,o50:1},parental:{entitled:{m:3,f:2},took:{m:2,f:2},returned:{m:2,f:2}}}},
+  SPM:  {2023:{new:{m:6,f:2,u30:4,a3050:3,o50:1},parental:{entitled:{m:3,f:2},took:{m:2,f:2},returned:{m:2,f:2}}},2024:{new:{m:4,f:5,u30:4,a3050:3,o50:2},parental:{entitled:{m:3,f:2},took:{m:2,f:2},returned:{m:2,f:2}}},2025:{new:{m:3,f:4,u30:4,a3050:3,o50:0},parental:{entitled:{m:3,f:2},took:{m:2,f:2},returned:{m:1,f:2}}}},
+  GSME: {2023:{new:{m:4,f:1,u30:2,a3050:2,o50:1},parental:{entitled:{m:2,f:1},took:{m:1,f:1},returned:{m:1,f:1}}},2024:{new:{m:2,f:3,u30:3,a3050:2,o50:0},parental:{entitled:{m:2,f:1},took:{m:1,f:1},returned:{m:1,f:1}}},2025:{new:{m:2,f:3,u30:3,a3050:2,o50:0},parental:{entitled:{m:2,f:1},took:{m:1,f:1},returned:{m:1,f:1}}}},
+  PMB:  {2023:{new:{m:2,f:1,u30:1,a3050:1,o50:1},parental:{entitled:{m:1,f:0},took:{m:0,f:0},returned:{m:0,f:0}}},2024:{new:{m:1,f:1,u30:1,a3050:1,o50:0},parental:{entitled:{m:1,f:1},took:{m:1,f:1},returned:{m:1,f:1}}},2025:{new:{m:1,f:1,u30:1,a3050:1,o50:0},parental:{entitled:{m:1,f:1},took:{m:1,f:0},returned:{m:1,f:0}}}},
+};
+
+/* ===== RAW DATA: OHS (GRI 403-9) — placeholder ===== */
+const OHS = {
+  WS:   {2023:{perm:{fatality:0,highcons:2,recordable:12,hours:1320000},contract:{fatality:0,highcons:1,recordable:4,hours:240000}},2024:{perm:{fatality:0,highcons:1,recordable:10,hours:1360000},contract:{fatality:0,highcons:1,recordable:3,hours:260000}},2025:{perm:{fatality:0,highcons:1,recordable:8,hours:1340000},contract:{fatality:0,highcons:0,recordable:3,hours:250000}}},
+  SDS:  {2023:{perm:{fatality:0,highcons:1,recordable:4,hours:370000},contract:{fatality:0,highcons:0,recordable:1,hours:90000}},2024:{perm:{fatality:0,highcons:0,recordable:3,hours:370000},contract:{fatality:0,highcons:0,recordable:1,hours:100000}},2025:{perm:{fatality:0,highcons:0,recordable:2,hours:366000},contract:{fatality:0,highcons:0,recordable:1,hours:76000}}},
+  MEPPO:{2023:{perm:{fatality:0,highcons:1,recordable:4,hours:330000},contract:{fatality:0,highcons:0,recordable:1,hours:80000}},2024:{perm:{fatality:0,highcons:0,recordable:3,hours:330000},contract:{fatality:0,highcons:0,recordable:1,hours:80000}},2025:{perm:{fatality:0,highcons:0,recordable:2,hours:322000},contract:{fatality:0,highcons:0,recordable:1,hours:64000}}},
+  SBG:  {2023:{perm:{fatality:0,highcons:0,recordable:2,hours:180000},contract:{fatality:0,highcons:0,recordable:1,hours:50000}},2024:{perm:{fatality:0,highcons:0,recordable:2,hours:180000},contract:{fatality:0,highcons:0,recordable:0,hours:50000}},2025:{perm:{fatality:0,highcons:0,recordable:1,hours:176000},contract:{fatality:0,highcons:0,recordable:0,hours:38000}}},
+  SGE:  {2023:{perm:{fatality:0,highcons:0,recordable:3,hours:220000},contract:{fatality:0,highcons:0,recordable:1,hours:60000}},2024:{perm:{fatality:0,highcons:0,recordable:2,hours:220000},contract:{fatality:0,highcons:0,recordable:1,hours:60000}},2025:{perm:{fatality:0,highcons:0,recordable:2,hours:214000},contract:{fatality:0,highcons:0,recordable:0,hours:46000}}},
+  TES:  {2023:{perm:{fatality:0,highcons:0,recordable:3,hours:260000},contract:{fatality:0,highcons:0,recordable:1,hours:72000}},2024:{perm:{fatality:0,highcons:0,recordable:2,hours:260000},contract:{fatality:0,highcons:0,recordable:1,hours:72000}},2025:{perm:{fatality:0,highcons:0,recordable:2,hours:252000},contract:{fatality:0,highcons:0,recordable:0,hours:56000}}},
+  MPRD: {2023:{perm:{fatality:0,highcons:0,recordable:2,hours:192000},contract:{fatality:0,highcons:0,recordable:1,hours:50000}},2024:{perm:{fatality:0,highcons:0,recordable:2,hours:192000},contract:{fatality:0,highcons:0,recordable:0,hours:50000}},2025:{perm:{fatality:0,highcons:0,recordable:1,hours:186000},contract:{fatality:0,highcons:0,recordable:0,hours:38000}}},
+  MD:   {2023:{perm:{fatality:0,highcons:1,recordable:7,hours:564000},contract:{fatality:0,highcons:0,recordable:2,hours:152000}},2024:{perm:{fatality:0,highcons:1,recordable:6,hours:564000},contract:{fatality:0,highcons:0,recordable:2,hours:152000}},2025:{perm:{fatality:0,highcons:0,recordable:5,hours:550000},contract:{fatality:0,highcons:0,recordable:1,hours:120000}}},
+  TA:   {2023:{perm:{fatality:0,highcons:1,recordable:5,hours:372000},contract:{fatality:0,highcons:0,recordable:1,hours:100000}},2024:{perm:{fatality:0,highcons:0,recordable:4,hours:372000},contract:{fatality:0,highcons:0,recordable:1,hours:100000}},2025:{perm:{fatality:0,highcons:0,recordable:3,hours:362000},contract:{fatality:0,highcons:0,recordable:1,hours:78000}}},
+  TRS:  {2023:{perm:{fatality:0,highcons:1,recordable:4,hours:342000},contract:{fatality:0,highcons:0,recordable:1,hours:92000}},2024:{perm:{fatality:0,highcons:0,recordable:4,hours:342000},contract:{fatality:0,highcons:0,recordable:1,hours:92000}},2025:{perm:{fatality:0,highcons:0,recordable:3,hours:334000},contract:{fatality:0,highcons:0,recordable:1,hours:72000}}},
+  MPH:  {2023:{perm:{fatality:0,highcons:0,recordable:3,hours:232000},contract:{fatality:0,highcons:0,recordable:1,hours:62000}},2024:{perm:{fatality:0,highcons:0,recordable:2,hours:232000},contract:{fatality:0,highcons:0,recordable:1,hours:62000}},2025:{perm:{fatality:0,highcons:0,recordable:2,hours:226000},contract:{fatality:0,highcons:0,recordable:0,hours:50000}}},
+  SPP:  {2023:{perm:{fatality:0,highcons:0,recordable:2,hours:132000},contract:{fatality:0,highcons:0,recordable:0,hours:34000}},2024:{perm:{fatality:0,highcons:0,recordable:1,hours:132000},contract:{fatality:0,highcons:0,recordable:0,hours:34000}},2025:{perm:{fatality:0,highcons:0,recordable:1,hours:128000},contract:{fatality:0,highcons:0,recordable:0,hours:28000}}},
+  SPM:  {2023:{perm:{fatality:0,highcons:0,recordable:1,hours:122000},contract:{fatality:0,highcons:0,recordable:0,hours:32000}},2024:{perm:{fatality:0,highcons:0,recordable:1,hours:122000},contract:{fatality:0,highcons:0,recordable:0,hours:32000}},2025:{perm:{fatality:0,highcons:0,recordable:1,hours:118000},contract:{fatality:0,highcons:0,recordable:0,hours:24000}}},
+  GSME: {2023:{perm:{fatality:0,highcons:0,recordable:1,hours:82000},contract:{fatality:0,highcons:0,recordable:0,hours:20000}},2024:{perm:{fatality:0,highcons:0,recordable:1,hours:82000},contract:{fatality:0,highcons:0,recordable:0,hours:20000}},2025:{perm:{fatality:0,highcons:0,recordable:0,hours:80000},contract:{fatality:0,highcons:0,recordable:0,hours:16000}}},
+  PMB:  {2023:{perm:{fatality:0,highcons:0,recordable:0,hours:32000},contract:{fatality:0,highcons:0,recordable:0,hours:8000}},2024:{perm:{fatality:0,highcons:0,recordable:0,hours:32000},contract:{fatality:0,highcons:0,recordable:0,hours:8000}},2025:{perm:{fatality:0,highcons:0,recordable:0,hours:32000},contract:{fatality:0,highcons:0,recordable:0,hours:2000}}},
+};
+
+/* ===== RAW DATA: TRAINING (GRI 404-1) — placeholder ===== */
+const TRAINING = {
+  WS:   {2023:{gender:{m:32,f:28},category:{senior:48,mid:36,junior:24,staff:18}},2024:{gender:{m:34,f:31},category:{senior:52,mid:38,junior:26,staff:20}},2025:{gender:{m:36,f:33},category:{senior:55,mid:40,junior:28,staff:22}}},
+  SDS:  {2023:{gender:{m:28,f:25},category:{senior:42,mid:32,junior:22,staff:16}},2024:{gender:{m:30,f:27},category:{senior:45,mid:34,junior:24,staff:18}},2025:{gender:{m:32,f:29},category:{senior:48,mid:36,junior:25,staff:19}}},
+  MEPPO:{2023:{gender:{m:27,f:24},category:{senior:41,mid:31,junior:21,staff:15}},2024:{gender:{m:29,f:26},category:{senior:44,mid:33,junior:23,staff:17}},2025:{gender:{m:31,f:28},category:{senior:47,mid:35,junior:24,staff:18}}},
+  SBG:  {2023:{gender:{m:26,f:23},category:{senior:40,mid:30,junior:20,staff:15}},2024:{gender:{m:28,f:25},category:{senior:43,mid:32,junior:22,staff:16}},2025:{gender:{m:30,f:27},category:{senior:46,mid:34,junior:24,staff:18}}},
+  SGE:  {2023:{gender:{m:29,f:26},category:{senior:44,mid:33,junior:22,staff:16}},2024:{gender:{m:31,f:28},category:{senior:47,mid:35,junior:24,staff:18}},2025:{gender:{m:33,f:30},category:{senior:50,mid:37,junior:26,staff:20}}},
+  TES:  {2023:{gender:{m:27,f:24},category:{senior:41,mid:31,junior:21,staff:15}},2024:{gender:{m:29,f:26},category:{senior:44,mid:33,junior:23,staff:17}},2025:{gender:{m:31,f:28},category:{senior:47,mid:35,junior:24,staff:18}}},
+  MPRD: {2023:{gender:{m:26,f:23},category:{senior:40,mid:30,junior:20,staff:15}},2024:{gender:{m:28,f:25},category:{senior:43,mid:32,junior:22,staff:16}},2025:{gender:{m:30,f:27},category:{senior:46,mid:34,junior:23,staff:17}}},
+  MD:   {2023:{gender:{m:30,f:27},category:{senior:46,mid:34,junior:23,staff:17}},2024:{gender:{m:32,f:29},category:{senior:49,mid:36,junior:25,staff:19}},2025:{gender:{m:34,f:31},category:{senior:52,mid:38,junior:27,staff:21}}},
+  TA:   {2023:{gender:{m:28,f:25},category:{senior:43,mid:32,junior:22,staff:16}},2024:{gender:{m:30,f:27},category:{senior:46,mid:34,junior:24,staff:18}},2025:{gender:{m:32,f:29},category:{senior:49,mid:36,junior:25,staff:19}}},
+  TRS:  {2023:{gender:{m:27,f:24},category:{senior:42,mid:31,junior:21,staff:16}},2024:{gender:{m:29,f:26},category:{senior:45,mid:33,junior:23,staff:17}},2025:{gender:{m:31,f:28},category:{senior:48,mid:35,junior:24,staff:18}}},
+  MPH:  {2023:{gender:{m:26,f:23},category:{senior:40,mid:30,junior:20,staff:15}},2024:{gender:{m:28,f:25},category:{senior:43,mid:32,junior:22,staff:16}},2025:{gender:{m:30,f:27},category:{senior:46,mid:34,junior:23,staff:17}}},
+  SPP:  {2023:{gender:{m:25,f:22},category:{senior:38,mid:29,junior:19,staff:14}},2024:{gender:{m:27,f:24},category:{senior:41,mid:31,junior:21,staff:16}},2025:{gender:{m:29,f:26},category:{senior:44,mid:33,junior:22,staff:17}}},
+  SPM:  {2023:{gender:{m:25,f:22},category:{senior:38,mid:29,junior:19,staff:14}},2024:{gender:{m:27,f:24},category:{senior:41,mid:31,junior:21,staff:15}},2025:{gender:{m:29,f:26},category:{senior:44,mid:33,junior:22,staff:17}}},
+  GSME: {2023:{gender:{m:24,f:21},category:{senior:37,mid:28,junior:19,staff:14}},2024:{gender:{m:26,f:23},category:{senior:40,mid:30,junior:20,staff:15}},2025:{gender:{m:28,f:25},category:{senior:43,mid:32,junior:22,staff:16}}},
+  PMB:  {2023:{gender:{m:23,f:20},category:{senior:36,mid:27,junior:18,staff:13}},2024:{gender:{m:25,f:22},category:{senior:39,mid:29,junior:20,staff:14}},2025:{gender:{m:27,f:24},category:{senior:42,mid:31,junior:21,staff:15}}},
+};
+
+const YEARS = [2023, 2024, 2025];
+const PALETTE = ['#2A78D6','#1BAF7A','#EDA100','#4A3AA7','#E34948','#EB6834','#E87BA4','#1B3A6B','#0EA5E9','#22C55E','#4A3AA7','#E34948','#EB6834','#E87BA4','#2A78D6'];
+let activePT = 'all', activeYear = 'all';
+const charts = {};
+
+function getYrs() { return activeYear === 'all' ? YEARS : [activeYear]; }
+function getPTs() { return activePT === 'all' ? Object.keys(RAW) : [activePT]; }
+
+function aggGeneral() {
+  const pts = getPTs(); const ys = getYrs();
+  const o = { gender: {}, status: {}, workers: {} };
+  YEARS.forEach(y => { o.gender[y]={m:0,f:0}; o.status[y]={p:0,c:0}; o.workers[y]={con:0,int:0,vol:0,out:0}; });
+  pts.forEach(p => YEARS.forEach(y => {
+    o.gender[y].m+=RAW[p].gender[y].m; o.gender[y].f+=RAW[p].gender[y].f;
+    o.status[y].p+=RAW[p].status[y].p; o.status[y].c+=RAW[p].status[y].c;
+    o.workers[y].con+=RAW[p].workers[y].con; o.workers[y].int+=RAW[p].workers[y].int;
+    o.workers[y].vol+=RAW[p].workers[y].vol; o.workers[y].out+=RAW[p].workers[y].out;
+  }));
+  return o;
+}
+
+function aggEnergy() {
+  const pts = getPTs(); const ys = getYrs();
+  const o = {};
+  YEARS.forEach(y => { o[y]={nonren:0,ren:0}; });
+  pts.forEach(p => YEARS.forEach(y => { o[y].nonren+=ENERGY[p][y].nonren; o[y].ren+=ENERGY[p][y].ren; }));
+  return o;
+}
+
+function aggWaste() {
+  const pts = getPTs();
+  const o = {};
+  YEARS.forEach(y => { o[y]={divert:{recycled:0,composted:0,recovery:0},disposal:{landfill:0,incineration:0,other:0}}; });
+  pts.forEach(p => YEARS.forEach(y => {
+    o[y].divert.recycled+=WASTE[p][y].divert.recycled; o[y].divert.composted+=WASTE[p][y].divert.composted; o[y].divert.recovery+=WASTE[p][y].divert.recovery;
+    o[y].disposal.landfill+=WASTE[p][y].disposal.landfill; o[y].disposal.incineration+=WASTE[p][y].disposal.incineration; o[y].disposal.other+=WASTE[p][y].disposal.other;
+  }));
+  return o;
+}
+
+function aggWater() {
+  const pts = getPTs();
+  const o = {};
+  YEARS.forEach(y => { o[y]={wd:{surface:0,ground:0,seawater:0,third:0},discharge:{surface:0,ground:0,seawater:0,third:0}}; });
+  pts.forEach(p => YEARS.forEach(y => {
+    ['surface','ground','seawater','third'].forEach(k => { o[y].wd[k]+=WATER[p][y].wd[k]; o[y].discharge[k]+=WATER[p][y].discharge[k]; });
+  }));
+  return o;
+}
+
+function aggDiversity() {
+  const pts = getPTs();
+  const o = {};
+  YEARS.forEach(y => { o[y]={gov:{m:0,f:0},age:{u30:0,a3050:0,o50:0},salary:{senior:[],mid:[],junior:[]}}; });
+  pts.forEach(p => YEARS.forEach(y => {
+    o[y].gov.m+=DIVERSITY[p][y].gov.m; o[y].gov.f+=DIVERSITY[p][y].gov.f;
+    o[y].age.u30+=DIVERSITY[p][y].age.u30; o[y].age.a3050+=DIVERSITY[p][y].age.a3050; o[y].age.o50+=DIVERSITY[p][y].age.o50;
+    o[y].salary.senior.push(DIVERSITY[p][y].salary.senior);
+    o[y].salary.mid.push(DIVERSITY[p][y].salary.mid);
+    o[y].salary.junior.push(DIVERSITY[p][y].salary.junior);
+  }));
+  YEARS.forEach(y => {
+    const avg = arr => arr.reduce((a,b)=>a+b,0)/arr.length;
+    o[y].salary.senior=avg(o[y].salary.senior); o[y].salary.mid=avg(o[y].salary.mid); o[y].salary.junior=avg(o[y].salary.junior);
+  });
+  return o;
+}
+
+function aggEmployment() {
+  const pts = getPTs();
+  const o = {};
+  YEARS.forEach(y => { o[y]={new:{m:0,f:0,u30:0,a3050:0,o50:0},parental:{entitled:{m:0,f:0},took:{m:0,f:0},returned:{m:0,f:0}}}; });
+  pts.forEach(p => YEARS.forEach(y => {
+    o[y].new.m+=EMPLOYMENT[p][y].new.m; o[y].new.f+=EMPLOYMENT[p][y].new.f;
+    o[y].new.u30+=EMPLOYMENT[p][y].new.u30; o[y].new.a3050+=EMPLOYMENT[p][y].new.a3050; o[y].new.o50+=EMPLOYMENT[p][y].new.o50;
+    ['entitled','took','returned'].forEach(k => { o[y].parental[k].m+=EMPLOYMENT[p][y].parental[k].m; o[y].parental[k].f+=EMPLOYMENT[p][y].parental[k].f; });
+  }));
+  return o;
+}
+
+function aggOHS() {
+  const pts = getPTs();
+  const o = {};
+  YEARS.forEach(y => { o[y]={perm:{fatality:0,highcons:0,recordable:0,hours:0},contract:{fatality:0,highcons:0,recordable:0,hours:0}}; });
+  pts.forEach(p => YEARS.forEach(y => {
+    ['fatality','highcons','recordable','hours'].forEach(k => { o[y].perm[k]+=OHS[p][y].perm[k]; o[y].contract[k]+=OHS[p][y].contract[k]; });
+  }));
+  return o;
+}
+
+function aggTraining() {
+  const pts = getPTs();
+  const o = {};
+  YEARS.forEach(y => { o[y]={gender:{m:[],f:[]},category:{senior:[],mid:[],junior:[],staff:[]}}; });
+  pts.forEach(p => YEARS.forEach(y => {
+    o[y].gender.m.push(TRAINING[p][y].gender.m); o[y].gender.f.push(TRAINING[p][y].gender.f);
+    ['senior','mid','junior','staff'].forEach(k => o[y].category[k].push(TRAINING[p][y].category[k]));
+  }));
+  const avg = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0;
+  YEARS.forEach(y => {
+    o[y].gender.m=avg(o[y].gender.m); o[y].gender.f=avg(o[y].gender.f);
+    ['senior','mid','junior','staff'].forEach(k => { o[y].category[k]=avg(o[y].category[k]); });
+  });
+  return o;
+}
+
+const chartOpts = (extra={}) => ({
+  responsive:true, maintainAspectRatio:false,
+  plugins:{ legend:{display:false} },
+  scales:{
+    y:{grid:{color:'rgba(107,114,128,0.12)'},ticks:{color:'#9CA3AF',font:{size:11,family:'Inter'}},border:{display:false}},
+    x:{grid:{display:false},ticks:{color:'#9CA3AF',font:{size:11,family:'Inter'}},border:{display:false}}
+  },
+  ...extra
+});
+
+function leg(id, items) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = items.map(it =>
+    `<span class="flex items-center gap-1.5 text-xs text-gray-500">
+      <span class="inline-block w-2.5 h-2.5 rounded-sm flex-shrink-0" style="background:${it.c}"></span>${it.l}
+    </span>`).join('');
+}
+
+function dc(id) { if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
+
+function fmt(n) { return typeof n === 'number' ? n.toLocaleString('id-ID') : n; }
+
+/* ===== GENERAL ===== */
+function buildGeneral() {
+  const d = aggGeneral(); const ys = getYrs();
+  // KPIs
+  const totM=ys.reduce((s,y)=>s+d.gender[y].m,0), totF=ys.reduce((s,y)=>s+d.gender[y].f,0);
+  const totP=ys.reduce((s,y)=>s+d.status[y].p,0), totC=ys.reduce((s,y)=>s+d.status[y].c,0);
+  document.getElementById('k-total').textContent=fmt(totM+totF);
+  document.getElementById('k-male').textContent=fmt(totM);
+  document.getElementById('k-female').textContent=fmt(totF);
+  document.getElementById('k-perm').textContent=fmt(totP);
+  document.getElementById('k-contract').textContent=fmt(totC);
+  ['total','male','female','perm','contract'].forEach(k => { const el=document.getElementById('d-'+k); if(el) el.innerHTML=''; });
+
+  ['gender','status','trend','donut','worker','pie'].forEach(dc);
+
+  if (ys.length===1) {
+    const y=ys[0];
+    charts.gender=new Chart(document.getElementById('c-gender'),{type:'bar',data:{labels:['Laki-laki','Perempuan'],datasets:[{data:[d.gender[y].m,d.gender[y].f],backgroundColor:['#2A78D6','#E87BA4'],borderRadius:6,borderSkipped:false}]},options:chartOpts()});
+    charts.status=new Chart(document.getElementById('c-status'),{type:'bar',data:{labels:['Tetap','Kontrak'],datasets:[{data:[d.status[y].p,d.status[y].c],backgroundColor:['#1BAF7A','#EDA100'],borderRadius:6,borderSkipped:false}]},options:chartOpts()});
+  } else {
+    charts.gender=new Chart(document.getElementById('c-gender'),{type:'bar',data:{labels:YEARS.map(String),datasets:[{label:'Laki-laki',data:YEARS.map(y=>d.gender[y].m),backgroundColor:'#2A78D6',borderRadius:4},{label:'Perempuan',data:YEARS.map(y=>d.gender[y].f),backgroundColor:'#E87BA4',borderRadius:4}]},options:chartOpts()});
+    charts.status=new Chart(document.getElementById('c-status'),{type:'bar',data:{labels:YEARS.map(String),datasets:[{label:'Tetap',data:YEARS.map(y=>d.status[y].p),backgroundColor:'#1BAF7A',borderRadius:4},{label:'Kontrak',data:YEARS.map(y=>d.status[y].c),backgroundColor:'#EDA100',borderRadius:4}]},options:chartOpts()});
+  }
+  leg('l-gender',[{c:'#2A78D6',l:'Laki-laki'},{c:'#E87BA4',l:'Perempuan'}]);
+  leg('l-status',[{c:'#1BAF7A',l:'Tetap'},{c:'#EDA100',l:'Kontrak'}]);
+
+  charts.trend=new Chart(document.getElementById('c-trend'),{type:'line',data:{labels:YEARS.map(String),datasets:[{label:'Total',data:YEARS.map(y=>d.gender[y].m+d.gender[y].f),borderColor:'#2A78D6',backgroundColor:'rgba(42,120,214,0.07)',borderWidth:2.5,tension:0.35,pointRadius:5,pointBackgroundColor:'#2A78D6',fill:true},{label:'Tetap',data:YEARS.map(y=>d.status[y].p),borderColor:'#1BAF7A',borderDash:[5,3],borderWidth:2,tension:0.35,pointRadius:4,pointBackgroundColor:'#1BAF7A'}]},options:chartOpts()});
+  leg('l-trend',[{c:'#2A78D6',l:'Total'},{c:'#1BAF7A',l:'Tetap'}]);
+
+  const totMall=ys.reduce((s,y)=>s+d.gender[y].m,0), totFall=ys.reduce((s,y)=>s+d.gender[y].f,0), totAll=totMall+totFall;
+  charts.donut=new Chart(document.getElementById('c-donut'),{type:'doughnut',data:{labels:['Laki-laki','Perempuan'],datasets:[{data:[totMall,totFall],backgroundColor:['#2A78D6','#E87BA4'],borderWidth:3,borderColor:'#FFFFFF',hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{const t=ctx.dataset.data.reduce((a,b)=>a+b,0); return ` ${ctx.label}: ${Math.round(ctx.parsed/t*100)}% (${ctx.parsed.toLocaleString('id-ID')})`;}}}}}}); 
+  leg('l-donut',[{c:'#2A78D6',l:`Laki-laki ${Math.round(totMall/totAll*100)}%`},{c:'#E87BA4',l:`Perempuan ${Math.round(totFall/totAll*100)}%`}]);
+
+  const wlabels=['Kontraktor','Magang','Sukarela','Outsource'], wkeys=['con','int','vol','out'], wcolors=['#2A78D6','#1BAF7A','#EDA100','#4A3AA7'];
+  const wvals=wkeys.map(k=>ys.reduce((s,y)=>s+d.workers[y][k],0));
+  charts.worker=new Chart(document.getElementById('c-worker'),{type:'bar',data:{labels:wlabels,datasets:[{data:wvals,backgroundColor:wcolors,borderRadius:6,borderSkipped:false}]},options:chartOpts()});
+  leg('l-worker',wlabels.map((l,i)=>({c:wcolors[i],l})));
+
+  const totPall=ys.reduce((s,y)=>s+d.status[y].p,0), totCall=ys.reduce((s,y)=>s+d.status[y].c,0), totSall=totPall+totCall;
+  charts.pie=new Chart(document.getElementById('c-pie'),{type:'pie',data:{labels:['Tetap','Kontrak'],datasets:[{data:[totPall,totCall],backgroundColor:['#1BAF7A','#EDA100'],borderWidth:3,borderColor:'#FFFFFF',hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{const t=ctx.dataset.data.reduce((a,b)=>a+b,0); return ` ${ctx.label}: ${Math.round(ctx.parsed/t*100)}% (${ctx.parsed.toLocaleString('id-ID')})`;}}}}}}); 
+  leg('l-pie',[{c:'#1BAF7A',l:`Tetap ${Math.round(totPall/totSall*100)}%`},{c:'#EDA100',l:`Kontrak ${Math.round(totCall/totSall*100)}%`}]);
+
+  // PT bars
+  const ptKeys=Object.keys(RAW), vals=ptKeys.map(p=>RAW[p].gender[2025].m+RAW[p].gender[2025].f), maxv=Math.max(...vals);
+  document.getElementById('pt-bars').innerHTML=ptKeys.map((p,i)=>
+    `<div class="flex items-center gap-3">
+      <span class="text-xs text-gray-400 font-medium w-12 text-right flex-shrink-0">${p}</span>
+      <div class="flex-1 bg-gray-100 rounded-full h-4 overflow-hidden">
+        <div class="bar-fill h-full rounded-full" style="width:${Math.round(vals[i]/maxv*100)}%;background:${PALETTE[i]}"></div>
+      </div>
+      <span class="text-xs font-semibold text-ink w-12 flex-shrink-0">${vals[i].toLocaleString('id-ID')}</span>
+    </div>`).join('');
+}
+
+/* ===== ENERGY ===== */
+function buildEnergy() {
+  const d=aggEnergy(); const ys=getYrs();
+  const totNR=ys.reduce((s,y)=>s+d[y].nonren,0), totR=ys.reduce((s,y)=>s+d[y].ren,0);
+  document.getElementById('ke-nonren').textContent=fmt(totNR.toFixed(0))+' GJ';
+  document.getElementById('ke-ren').textContent=fmt(totR.toFixed(0))+' GJ';
+  document.getElementById('ke-pct').textContent=Math.round(totR/(totNR+totR)*100)+'%';
+
+  ['energy-bar','energy-trend','energy-fuel'].forEach(dc);
+  charts['energy-bar']=new Chart(document.getElementById('c-energy-bar'),{type:'bar',data:{labels:YEARS.map(String),datasets:[{label:'Non-Renewable',data:YEARS.map(y=>d[y].nonren),backgroundColor:'#EDA100',borderRadius:4},{label:'Renewable',data:YEARS.map(y=>d[y].ren),backgroundColor:'#1BAF7A',borderRadius:4}]},options:chartOpts()});
+  leg('l-energy-bar',[{c:'#EDA100',l:'Non-Renewable (GJ)'},{c:'#1BAF7A',l:'Renewable (GJ)'}]);
+  charts['energy-trend']=new Chart(document.getElementById('c-energy-trend'),{type:'line',data:{labels:YEARS.map(String),datasets:[{label:'Total',data:YEARS.map(y=>d[y].nonren+d[y].ren),borderColor:'#2A78D6',backgroundColor:'rgba(42,120,214,0.07)',borderWidth:2.5,tension:0.35,pointRadius:5,pointBackgroundColor:'#2A78D6',fill:true}]},options:chartOpts()});
+  leg('l-energy-trend',[{c:'#2A78D6',l:'Total Energi (GJ)'}]);
+
+  // fuel breakdown for selected PT (use first PT or all summed)
+  const fuelLabels=['Solar','Biodiesel','Grid/Batubara'], fuelColors=['#EDA100','#EB6834','#4A3AA7'];
+  const pts=getPTs();
+  const fuelVals=ys.reduce((acc,y)=>{
+    pts.forEach(p=>{
+      if(ENERGY[p][y].solar!==undefined){ acc[0]+=(ENERGY[p][y].solar||0); acc[1]+=(ENERGY[p][y].biodiesel||0); acc[2]+=(ENERGY[p][y].grid||0); }
+      else { const share=ENERGY[p][y].nonren; acc[0]+=share*0.35; acc[1]+=share*0.40; acc[2]+=share*0.25; }
+    });
+    return acc;
+  },[0,0,0]);
+  charts['energy-fuel']=new Chart(document.getElementById('c-energy-fuel'),{type:'bar',data:{labels:fuelLabels,datasets:[{data:fuelVals,backgroundColor:fuelColors,borderRadius:6,borderSkipped:false}]},options:chartOpts()});
+  leg('l-energy-fuel',fuelLabels.map((l,i)=>({c:fuelColors[i],l})));
+}
+
+/* ===== WASTE ===== */
+function buildWaste() {
+  const d=aggWaste(); const ys=getYrs();
+  const totDiv=ys.reduce((s,y)=>s+d[y].divert.recycled+d[y].divert.composted+d[y].divert.recovery,0);
+  const totDis=ys.reduce((s,y)=>s+d[y].disposal.landfill+d[y].disposal.incineration+d[y].disposal.other,0);
+  const totRec=ys.reduce((s,y)=>s+d[y].divert.recycled,0);
+  const totLand=ys.reduce((s,y)=>s+d[y].disposal.landfill,0);
+  document.getElementById('kw-divert').textContent=fmt(totDiv.toFixed(1))+' ton';
+  document.getElementById('kw-disposal').textContent=fmt(totDis.toFixed(1))+' ton';
+  document.getElementById('kw-recycled').textContent=fmt(totRec.toFixed(1))+' ton';
+  document.getElementById('kw-landfill').textContent=fmt(totLand.toFixed(1))+' ton';
+
+  ['waste-divert','waste-disposal','waste-trend'].forEach(dc);
+  const divLabels=['Recycled','Composted','Recovery'], divColors=['#1BAF7A','#2A78D6','#EDA100'];
+  charts['waste-divert']=new Chart(document.getElementById('c-waste-divert'),{type:'bar',data:{labels:YEARS.map(String),datasets:[{label:'Recycled',data:YEARS.map(y=>d[y].divert.recycled),backgroundColor:'#1BAF7A',borderRadius:4},{label:'Composted',data:YEARS.map(y=>d[y].divert.composted),backgroundColor:'#2A78D6',borderRadius:4},{label:'Recovery',data:YEARS.map(y=>d[y].divert.recovery),backgroundColor:'#EDA100',borderRadius:4}]},options:chartOpts({scales:{x:{stacked:true},y:{stacked:true,grid:{color:'rgba(107,114,128,0.12)'},ticks:{color:'#9CA3AF',font:{size:11}},border:{display:false}}}})});
+  leg('l-waste-divert',divLabels.map((l,i)=>({c:divColors[i],l})));
+
+  const disLabels=['Landfill','Incineration','Other'], disColors=['#E87BA4','#EB6834','#9CA3AF'];
+  charts['waste-disposal']=new Chart(document.getElementById('c-waste-disposal'),{type:'bar',data:{labels:YEARS.map(String),datasets:[{label:'Landfill',data:YEARS.map(y=>d[y].disposal.landfill),backgroundColor:'#E87BA4',borderRadius:4},{label:'Incineration',data:YEARS.map(y=>d[y].disposal.incineration),backgroundColor:'#EB6834',borderRadius:4},{label:'Other',data:YEARS.map(y=>d[y].disposal.other),backgroundColor:'#9CA3AF',borderRadius:4}]},options:chartOpts({scales:{x:{stacked:true},y:{stacked:true,grid:{color:'rgba(107,114,128,0.12)'},ticks:{color:'#9CA3AF',font:{size:11}},border:{display:false}}}})});
+  leg('l-waste-disposal',disLabels.map((l,i)=>({c:disColors[i],l})));
+
+  charts['waste-trend']=new Chart(document.getElementById('c-waste-trend'),{type:'line',data:{labels:YEARS.map(String),datasets:[{label:'Divert (ton)',data:YEARS.map(y=>d[y].divert.recycled+d[y].divert.composted+d[y].divert.recovery),borderColor:'#1BAF7A',backgroundColor:'rgba(27,175,122,0.07)',borderWidth:2.5,tension:0.35,pointRadius:5,pointBackgroundColor:'#1BAF7A',fill:true},{label:'Disposal (ton)',data:YEARS.map(y=>d[y].disposal.landfill+d[y].disposal.incineration+d[y].disposal.other),borderColor:'#E87BA4',borderDash:[5,3],borderWidth:2,tension:0.35,pointRadius:4,pointBackgroundColor:'#E87BA4'}]},options:chartOpts()});
+  leg('l-waste-trend',[{c:'#1BAF7A',l:'Divert (ton)'},{c:'#E87BA4',l:'Disposal (ton)'}]);
+}
+
+/* ===== WATER ===== */
+function buildWater() {
+  const d=aggWater(); const ys=getYrs();
+  const totWd=ys.reduce((s,y)=>s+d[y].wd.surface+d[y].wd.ground+d[y].wd.seawater+d[y].wd.third,0);
+  const totDis=ys.reduce((s,y)=>s+d[y].discharge.surface+d[y].discharge.ground+d[y].discharge.seawater+d[y].discharge.third,0);
+  document.getElementById('kwa-withdraw').textContent=fmt(totWd.toFixed(1))+' ML';
+  document.getElementById('kwa-discharge').textContent=fmt(totDis.toFixed(1))+' ML';
+  document.getElementById('kwa-surface').textContent=fmt(ys.reduce((s,y)=>s+d[y].wd.surface,0).toFixed(1))+' ML';
+  document.getElementById('kwa-third').textContent=fmt(ys.reduce((s,y)=>s+d[y].wd.third,0).toFixed(1))+' ML';
+
+  ['water-withdraw','water-discharge','water-trend'].forEach(dc);
+  const wdLabels=['Surface','Groundwater','Seawater','Third-party'], wdColors=['#0EA5E9','#1BAF7A','#2A78D6','#4A3AA7'];
+  charts['water-withdraw']=new Chart(document.getElementById('c-water-withdraw'),{type:'bar',data:{labels:YEARS.map(String),datasets:[{label:'Surface',data:YEARS.map(y=>d[y].wd.surface),backgroundColor:'#0EA5E9',borderRadius:4},{label:'Groundwater',data:YEARS.map(y=>d[y].wd.ground),backgroundColor:'#1BAF7A',borderRadius:4},{label:'Seawater',data:YEARS.map(y=>d[y].wd.seawater),backgroundColor:'#2A78D6',borderRadius:4},{label:'Third-party',data:YEARS.map(y=>d[y].wd.third),backgroundColor:'#4A3AA7',borderRadius:4}]},options:chartOpts({scales:{x:{stacked:true},y:{stacked:true,grid:{color:'rgba(107,114,128,0.12)'},ticks:{color:'#9CA3AF',font:{size:11}},border:{display:false}}}})});
+  leg('l-water-withdraw',wdLabels.map((l,i)=>({c:wdColors[i],l})));
+
+  charts['water-discharge']=new Chart(document.getElementById('c-water-discharge'),{type:'bar',data:{labels:YEARS.map(String),datasets:[{label:'Surface',data:YEARS.map(y=>d[y].discharge.surface),backgroundColor:'#0EA5E9',borderRadius:4},{label:'Groundwater',data:YEARS.map(y=>d[y].discharge.ground),backgroundColor:'#1BAF7A',borderRadius:4},{label:'Seawater',data:YEARS.map(y=>d[y].discharge.seawater),backgroundColor:'#2A78D6',borderRadius:4},{label:'Third-party',data:YEARS.map(y=>d[y].discharge.third),backgroundColor:'#4A3AA7',borderRadius:4}]},options:chartOpts({scales:{x:{stacked:true},y:{stacked:true,grid:{color:'rgba(107,114,128,0.12)'},ticks:{color:'#9CA3AF',font:{size:11}},border:{display:false}}}})});
+  leg('l-water-discharge',wdLabels.map((l,i)=>({c:wdColors[i],l})));
+
+  charts['water-trend']=new Chart(document.getElementById('c-water-trend'),{type:'line',data:{labels:YEARS.map(String),datasets:[{label:'Withdrawal (ML)',data:YEARS.map(y=>d[y].wd.surface+d[y].wd.ground+d[y].wd.seawater+d[y].wd.third),borderColor:'#0EA5E9',backgroundColor:'rgba(14,165,233,0.07)',borderWidth:2.5,tension:0.35,pointRadius:5,pointBackgroundColor:'#0EA5E9',fill:true},{label:'Discharge (ML)',data:YEARS.map(y=>d[y].discharge.surface+d[y].discharge.ground+d[y].discharge.seawater+d[y].discharge.third),borderColor:'#4A3AA7',borderDash:[5,3],borderWidth:2,tension:0.35,pointRadius:4,pointBackgroundColor:'#4A3AA7'}]},options:chartOpts()});
+  leg('l-water-trend',[{c:'#0EA5E9',l:'Withdrawal (ML)'},{c:'#4A3AA7',l:'Discharge (ML)'}]);
+}
+
+/* ===== DIVERSITY ===== */
+function buildDiversity() {
+  const d=aggDiversity(); const ys=getYrs();
+  const govM=ys.reduce((s,y)=>s+d[y].gov.m,0), govF=ys.reduce((s,y)=>s+d[y].gov.f,0), govT=govM+govF;
+  document.getElementById('kd-gov-m').textContent=Math.round(govM/govT*100)+'%';
+  document.getElementById('kd-gov-f').textContent=Math.round(govF/govT*100)+'%';
+  const avgRatioSr=ys.reduce((s,y)=>s+d[y].salary.senior,0)/ys.length;
+  const avgRatioJr=ys.reduce((s,y)=>s+d[y].salary.junior,0)/ys.length;
+  document.getElementById('kd-ratio-sr').textContent=avgRatioSr.toFixed(2);
+  document.getElementById('kd-ratio-jr').textContent=avgRatioJr.toFixed(2);
+
+  ['div-gov-gender','div-age','div-salary'].forEach(dc);
+  charts['div-gov-gender']=new Chart(document.getElementById('c-div-gov-gender'),{type:'bar',data:{labels:YEARS.map(String),datasets:[{label:'Pria',data:YEARS.map(y=>d[y].gov.m),backgroundColor:'#2A78D6',borderRadius:4},{label:'Wanita',data:YEARS.map(y=>d[y].gov.f),backgroundColor:'#E87BA4',borderRadius:4}]},options:chartOpts()});
+  leg('l-div-gov-gender',[{c:'#2A78D6',l:'Pria'},{c:'#E87BA4',l:'Wanita'}]);
+
+  charts['div-age']=new Chart(document.getElementById('c-div-age'),{type:'bar',data:{labels:YEARS.map(String),datasets:[{label:'<30 tahun',data:YEARS.map(y=>d[y].age.u30),backgroundColor:'#2A78D6',borderRadius:4},{label:'30-50 tahun',data:YEARS.map(y=>d[y].age.a3050),backgroundColor:'#1BAF7A',borderRadius:4},{label:'>50 tahun',data:YEARS.map(y=>d[y].age.o50),backgroundColor:'#EDA100',borderRadius:4}]},options:chartOpts({scales:{x:{stacked:true},y:{stacked:true,grid:{color:'rgba(107,114,128,0.12)'},ticks:{color:'#9CA3AF',font:{size:11}},border:{display:false}}}})});
+  leg('l-div-age',[{c:'#2A78D6',l:'<30 tahun'},{c:'#1BAF7A',l:'30-50 tahun'},{c:'#EDA100',l:'>50 tahun'}]);
+
+  charts['div-salary']=new Chart(document.getElementById('c-div-salary'),{type:'bar',data:{labels:YEARS.map(String),datasets:[{label:'Senior',data:YEARS.map(y=>d[y].salary.senior),backgroundColor:'#4A3AA7',borderRadius:4},{label:'Mid',data:YEARS.map(y=>d[y].salary.mid),backgroundColor:'#2A78D6',borderRadius:4},{label:'Junior',data:YEARS.map(y=>d[y].salary.junior),backgroundColor:'#1BAF7A',borderRadius:4}]},options:chartOpts({scales:{y:{min:0.85,max:1.05,grid:{color:'rgba(107,114,128,0.12)'},ticks:{color:'#9CA3AF',font:{size:11}},border:{display:false}},x:{grid:{display:false},ticks:{color:'#9CA3AF',font:{size:11}},border:{display:false}}}})});
+  leg('l-div-salary',[{c:'#4A3AA7',l:'Senior'},{c:'#2A78D6',l:'Mid'},{c:'#1BAF7A',l:'Junior'}]);
+}
+
+/* ===== EMPLOYMENT ===== */
+function buildEmployment() {
+  const d=aggEmployment(); const ys=getYrs();
+  document.getElementById('ke2-new-m').textContent=fmt(ys.reduce((s,y)=>s+d[y].new.m,0));
+  document.getElementById('ke2-new-f').textContent=fmt(ys.reduce((s,y)=>s+d[y].new.f,0));
+  document.getElementById('ke2-par-m').textContent=fmt(ys.reduce((s,y)=>s+d[y].parental.entitled.m,0));
+  document.getElementById('ke2-par-f').textContent=fmt(ys.reduce((s,y)=>s+d[y].parental.entitled.f,0));
+
+  ['emp-new','emp-parental'].forEach(dc);
+  charts['emp-new']=new Chart(document.getElementById('c-emp-new'),{type:'bar',data:{labels:YEARS.map(String),datasets:[{label:'Pria',data:YEARS.map(y=>d[y].new.m),backgroundColor:'#2A78D6',borderRadius:4},{label:'Wanita',data:YEARS.map(y=>d[y].new.f),backgroundColor:'#E87BA4',borderRadius:4}]},options:chartOpts()});
+  leg('l-emp-new',[{c:'#2A78D6',l:'Pria'},{c:'#E87BA4',l:'Wanita'}]);
+
+  charts['emp-parental']=new Chart(document.getElementById('c-emp-parental'),{type:'bar',data:{labels:['Berhak','Mengambil','Kembali'],datasets:[{label:'Pria',data:YEARS.reduce((acc,y)=>{acc[0]+=d[y].parental.entitled.m;acc[1]+=d[y].parental.took.m;acc[2]+=d[y].parental.returned.m;return acc;},[0,0,0]),backgroundColor:'#2A78D6',borderRadius:4},{label:'Wanita',data:YEARS.reduce((acc,y)=>{acc[0]+=d[y].parental.entitled.f;acc[1]+=d[y].parental.took.f;acc[2]+=d[y].parental.returned.f;return acc;},[0,0,0]),backgroundColor:'#E87BA4',borderRadius:4}]},options:chartOpts()});
+  leg('l-emp-parental',[{c:'#2A78D6',l:'Pria'},{c:'#E87BA4',l:'Wanita'}]);
+}
+
+/* ===== OHS ===== */
+function buildOHS() {
+  const d=aggOHS(); const ys=getYrs();
+  const totF=ys.reduce((s,y)=>s+d[y].perm.fatality+d[y].contract.fatality,0);
+  const totH=ys.reduce((s,y)=>s+d[y].perm.highcons+d[y].contract.highcons,0);
+  const totR=ys.reduce((s,y)=>s+d[y].perm.recordable+d[y].contract.recordable,0);
+  const totHrs=ys.reduce((s,y)=>s+d[y].perm.hours+d[y].contract.hours,0);
+  document.getElementById('ko-fatality').textContent=fmt(totF);
+  document.getElementById('ko-highcons').textContent=fmt(totH);
+  document.getElementById('ko-recordable').textContent=fmt(totR);
+  document.getElementById('ko-hours').textContent=(totHrs/1000000).toFixed(2)+'M jam';
+
+  ['ohs-incident','ohs-type','ohs-trend'].forEach(dc);
+  charts['ohs-incident']=new Chart(document.getElementById('c-ohs-incident'),{type:'bar',data:{labels:YEARS.map(String),datasets:[{label:'High-consequence',data:YEARS.map(y=>d[y].perm.highcons+d[y].contract.highcons),backgroundColor:'#EDA100',borderRadius:4},{label:'Recordable',data:YEARS.map(y=>d[y].perm.recordable+d[y].contract.recordable),backgroundColor:'#EB6834',borderRadius:4}]},options:chartOpts()});
+  leg('l-ohs-incident',[{c:'#EDA100',l:'High-consequence'},{c:'#EB6834',l:'Recordable'}]);
+
+  charts['ohs-type']=new Chart(document.getElementById('c-ohs-type'),{type:'bar',data:{labels:YEARS.map(String),datasets:[{label:'Karyawan Tetap',data:YEARS.map(y=>d[y].perm.recordable),backgroundColor:'#2A78D6',borderRadius:4},{label:'Karyawan Kontrak',data:YEARS.map(y=>d[y].contract.recordable),backgroundColor:'#EDA100',borderRadius:4}]},options:chartOpts()});
+  leg('l-ohs-type',[{c:'#2A78D6',l:'Karyawan Tetap'},{c:'#EDA100',l:'Karyawan Kontrak'}]);
+
+  charts['ohs-trend']=new Chart(document.getElementById('c-ohs-trend'),{type:'line',data:{labels:YEARS.map(String),datasets:[{label:'Recordable Injuries',data:YEARS.map(y=>d[y].perm.recordable+d[y].contract.recordable),borderColor:'#EB6834',backgroundColor:'rgba(235,104,52,0.07)',borderWidth:2.5,tension:0.35,pointRadius:5,pointBackgroundColor:'#EB6834',fill:true}]},options:chartOpts()});
+  leg('l-ohs-trend',[{c:'#EB6834',l:'Recordable Injuries'}]);
+}
+
+/* ===== TRAINING ===== */
+function buildTraining() {
+  const d=aggTraining(); const ys=getYrs();
+  const avgM=ys.reduce((s,y)=>s+d[y].gender.m,0)/ys.length;
+  const avgF=ys.reduce((s,y)=>s+d[y].gender.f,0)/ys.length;
+  const avgSr=ys.reduce((s,y)=>s+d[y].category.senior,0)/ys.length;
+  const avgJr=ys.reduce((s,y)=>s+d[y].category.junior,0)/ys.length;
+  document.getElementById('kt-avg-m').textContent=avgM.toFixed(1)+' jam';
+  document.getElementById('kt-avg-f').textContent=avgF.toFixed(1)+' jam';
+  document.getElementById('kt-hrs-sr').textContent=avgSr.toFixed(1)+' jam';
+  document.getElementById('kt-hrs-jr').textContent=avgJr.toFixed(1)+' jam';
+
+  ['train-gender','train-category','train-trend'].forEach(dc);
+  charts['train-gender']=new Chart(document.getElementById('c-train-gender'),{type:'bar',data:{labels:YEARS.map(String),datasets:[{label:'Pria',data:YEARS.map(y=>d[y].gender.m),backgroundColor:'#2A78D6',borderRadius:4},{label:'Wanita',data:YEARS.map(y=>d[y].gender.f),backgroundColor:'#E87BA4',borderRadius:4}]},options:chartOpts()});
+  leg('l-train-gender',[{c:'#2A78D6',l:'Pria (jam rata-rata)'},{c:'#E87BA4',l:'Wanita (jam rata-rata)'}]);
+
+  charts['train-category']=new Chart(document.getElementById('c-train-category'),{type:'bar',data:{labels:YEARS.map(String),datasets:[{label:'Senior',data:YEARS.map(y=>d[y].category.senior),backgroundColor:'#4A3AA7',borderRadius:4},{label:'Mid',data:YEARS.map(y=>d[y].category.mid),backgroundColor:'#2A78D6',borderRadius:4},{label:'Junior',data:YEARS.map(y=>d[y].category.junior),backgroundColor:'#1BAF7A',borderRadius:4},{label:'Staff',data:YEARS.map(y=>d[y].category.staff),backgroundColor:'#EDA100',borderRadius:4}]},options:chartOpts()});
+  leg('l-train-category',[{c:'#4A3AA7',l:'Senior'},{c:'#2A78D6',l:'Mid'},{c:'#1BAF7A',l:'Junior'},{c:'#EDA100',l:'Staff'}]);
+
+  charts['train-trend']=new Chart(document.getElementById('c-train-trend'),{type:'line',data:{labels:YEARS.map(String),datasets:[{label:'Pria',data:YEARS.map(y=>d[y].gender.m),borderColor:'#2A78D6',backgroundColor:'rgba(42,120,214,0.07)',borderWidth:2.5,tension:0.35,pointRadius:5,pointBackgroundColor:'#2A78D6',fill:true},{label:'Wanita',data:YEARS.map(y=>d[y].gender.f),borderColor:'#E87BA4',borderDash:[5,3],borderWidth:2,tension:0.35,pointRadius:4,pointBackgroundColor:'#E87BA4'}]},options:chartOpts()});
+  leg('l-train-trend',[{c:'#2A78D6',l:'Pria'},{c:'#E87BA4',l:'Wanita'}]);
+}
+
+/* ===== TAB SWITCHING ===== */
+let activeTab = 'general';
+function switchTab(tab) {
+  document.querySelectorAll('.tab-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sec-'+tab).classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
+  activeTab = tab;
+  refresh();
+}
+
+function updateSubtitle() {
+  const sel=document.getElementById('sel-pt');
+  const ptLabel=sel.options[sel.selectedIndex].text;
+  const yrLabel=activeYear==='all'?'Semua tahun':activeYear;
+  document.getElementById('subtitle').innerHTML=`Menampilkan: <span class="text-ink font-semibold">${ptLabel}</span> &nbsp;·&nbsp; <span class="text-ink font-semibold">${yrLabel}</span>`;
+}
+
+function refresh() {
+  updateSubtitle();
+  switch(activeTab) {
+    case 'general':    buildGeneral(); break;
+    case 'energy':     buildEnergy(); break;
+    case 'waste':      buildWaste(); break;
+    case 'water':      buildWater(); break;
+    case 'diversity':  buildDiversity(); break;
+    case 'employment': buildEmployment(); break;
+    case 'ohs':        buildOHS(); break;
+    case 'training':   buildTraining(); break;
+  }
+}
+
+function setYear(y) { activeYear=y; refresh(); }
+function setPT(id)  { activePT=id; refresh(); }
+
+refresh();
+</script>
+</body>
+</html>
